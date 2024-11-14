@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env -S npx tsx
 
 import * as plc             from '@did-plc/lib'
 import yargs                from 'yargs'
