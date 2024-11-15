@@ -556,6 +556,11 @@ services:
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:3000/xrpc/_health"]
+      timeout: 10s
+      interval: 10s
+      retries: 5
     volumes:
       # supporting self-signed certificates, easiest way >>>>
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro

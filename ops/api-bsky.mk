@@ -83,3 +83,8 @@ _echo_apiops:
 _findDid:
 	@echo -n "### DID: "
 	-@cat ${resp} | jq .did | sed 's/"//g'
+ifneq ($(exportDidFile), )
+	-@cat ${resp} | jq .did | sed 's/"//g' > "${exportDidFile}"
+	-@echo DID saved to ${exportDidFile}
+endif
+
