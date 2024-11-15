@@ -35,15 +35,20 @@ docker-pull:
 build:
 	DOMAIN=${DOMAIN} asof=${asof} ${dockerCompose} -f ${f} build ${services}
 
-docker-start::      setupdir ${wDir}/config/caddy/Caddyfile ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt ${passfile} _applySdep _dockerUp
+docker-start::      docker-start-nowatch
+docker-start-nowatch::      setupdir ${wDir}/config/caddy/Caddyfile ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt ${passfile} _applySdep _dockerUp
 docker-start::      docker-watchlog
-docker-start-bsky:: _applySbsky _dockerUp
+docker-start-bsky:: docker-start-bsky-nowatch
+docker-start-bsky-nowatch:: _applySbsky _dockerUp
 docker-start-bsky:: docker-watchlog
-docker-start-bsky-feedgen:: _applySfeed _dockerUp
+docker-start-bsky-feedgen:: docker-start-bsky-feedgen-nowatch
+docker-start-bsky-feedgen-nowatch:: _applySfeed _dockerUp
 docker-start-bsky-feedgen:: docker-watchlog
-docker-start-bsky-ozone:: _applySozone _dockerUp
+docker-start-bsky-ozone:: docker-start-bsky-ozone-nowatch
+docker-start-bsky-ozone-nowatch:: _applySozone _dockerUp
 docker-start-bsky-ozone:: docker-watchlog
-docker-start-bsky-jetstream:: _applySjetstream _dockerUp
+docker-start-bsky-jetstream:: docker-start-bsky-jetstream
+docker-start-bsky-jetstream-nowatch:: _applySjetstream _dockerUp
 docker-start-bsky-jetstream:: docker-watchlog
 
 # execute publishFeed on feed-generator
