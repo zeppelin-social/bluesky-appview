@@ -44,12 +44,12 @@ function wait_for_container {
   container_name=$1
   # might need to look up the name outside docker compose
   echo -n "Waiting for $container_name... "
-  until [ "$(docker inspect -f {{.State.Running}} $(docker compose ps --format '{{.Name}}' ${container_name}) 2>/dev/null)" == "true" ]
+  until [ "$(docker inspect -f {{.State.Running}} $(docker compose ps --format '{{.Name}}' ${container_name} 2>/dev/null) 2>/dev/null)" == "true" ]
     do
       sleep 0.5
     done
-  echo -n "started..."
-  until [ "$(docker inspect -f {{.State.Health.Status}} $(docker compose ps --format '{{.Name}}' ${container_name}) 2>/dev/null)" == "healthy" ]
+  echo -n "started... "
+  until [ "$(docker inspect -f {{.State.Health.Status}} $(docker compose ps --format '{{.Name}}' ${container_name} 2>/dev/null) 2>/dev/null)" == "healthy" ]
     do
       sleep 0.5;
     done
