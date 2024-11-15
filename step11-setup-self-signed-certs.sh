@@ -8,10 +8,16 @@ set -o allexport
 . "$params_file"
 set +o allexport
 
-show_heading "Setting up CA" "for self-signed certificates"
+if [ "$EMAIL4CERTS" == "internal" ]
+  then
+    show_heading "Setting up CA" "for self-signed certificates"
 
-make getCAcert
-make installCAcert
+    make getCAcert
+    make installCAcert
 
-echo "Don't forget to install the certificate in `$script_dir/certs/root.crt" into your local web browser"
+    show_heading "Don't forget to install the certificate" "in $script_dir/certs/root.crt into your local web browser"
+  else
+    show_heading "Certificates will be auto-generated" "using let's encrypt, with $EMAIL4CERTS as the email address"
+    echo "This should take place when starting up the test web containers"
+  fi
 
