@@ -18,7 +18,8 @@ show_heading "Deploy bluesky containers" "(plc, bgs, appview, pds, ozone, ...)"
 make docker-start-bsky-nowatch
 
 show_heading "Wait for startup" "of social app"
-# FIXME: this should actually wait
-curl -L "https://social-app.${DOMAIN}/"
+# could also wait for Sbsky ?=pds bgs bsky social-app palomar
+# this requires a health check to be defined on the container
+wait_for_container social-app
 
 

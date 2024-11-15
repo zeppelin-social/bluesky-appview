@@ -353,6 +353,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:8100 | grep 'API docs at https://atproto.com' </dev/null"]
+      timeout: 10s
+      internal: 10s
+      retries: 5
     restart: always
 
   palomar:

@@ -40,3 +40,19 @@ function show_failure {
   echo "${red_color}Fail${reset_color}"
 }
 
+function wait_for_container {
+  container_name=$1
+  # might need to look up the name outside docker compose
+  echo -n "Waiting for $container_name... "
+  until [ "$(docker inspect -f {{.State.Running}} $(docker compose ps --format '{{.Name}}' ${container_name}))" == "true" ]
+    do
+      sleep 0.5
+    done
+  echo -n "started..."
+  until [ "$(docker inspect -f {{.State.Health.Status}} $(docker compose ps --format '{{.Name}}' ${container_name}))" == "healthy" ]
+    do
+      sleep 0.5;
+    done
+  show_success
+}
+
