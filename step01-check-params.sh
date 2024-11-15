@@ -5,7 +5,6 @@ script_dir="`dirname "$script_path"`"
 . "$script_dir/utils.sh"
 
 cd "$script_dir"
-params_file=bluesky-params.env
 [ -f $params_file ] || { show_error "Params file not found" at $params_file ; exit 1 ; }
 
 show_heading "Checking for required params" "in $params_file"
