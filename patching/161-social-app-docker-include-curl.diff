@@ -1,0 +1,12 @@
+diff --git a/Dockerfile b/Dockerfile
+index 9d950119f..4096e64c2 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -67,6 +67,7 @@ ENV DEBIAN_FRONTEND=noninteractive
+ 
+ RUN apt-get update && apt-get install --yes \
+   dumb-init \
++  curl \
+   ca-certificates
+ 
+ ENTRYPOINT ["dumb-init", "--"]
