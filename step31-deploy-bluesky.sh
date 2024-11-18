@@ -13,10 +13,10 @@ antisocial_services=$(yq '.services | keys' docker-compose.yaml | grep '[a-z]' |
 make docker-pull-antisocial antisocial_services="${antisocial_services//$'\n'/ }" || { show_error "Fetching Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Deploy required containers" "(database, caddy etc)"
-make docker-start-nowatch
+make docker-start-nowatch || { show_error "Required Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Deploy bluesky containers" "(plc, bgs, appview, pds, ozone, ...)"
-make docker-start-bsky-nowatch
+make docker-start-bsky-nowatch || { show_error "BlueSky Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Wait for startup" "of social app"
 # could also wait for Sbsky ?=pds bgs bsky social-app palomar

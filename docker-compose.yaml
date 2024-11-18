@@ -357,7 +357,7 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "curl http://localhost:8100 | grep 'API docs at https://atproto.com' >/dev/null"]
       timeout: 10s
-      internal: 10s
+      interval: 10s
       retries: 5
     restart: always
 
