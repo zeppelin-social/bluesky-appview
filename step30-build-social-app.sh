@@ -60,20 +60,30 @@ if [ "$missingRepos" != "" ]
   fi
 
 
-show_heading "Patching social-app" "to change the branding"
-[ "$REBRANDING_NAME" == "" ] && { show_error "Brand name undefined:" "please set REBRANDING_NAME in $params_file" ; exit 1 ; }
-[ -d "$script_dir/../rebranding" ] || { show_error "rebranding missing:" "please obtain source" ; exit 1 ; }
-(
-  cd "$script_dir/repos/social-app"
-  if [ -n "$(git branch --list local-rebranding-$REBRANDING_NAME)" ]
-    then
-      show_warning "Overriding social-app branch" "local-rebranding-$REBRANDING_NAME; was at commit `git log --oneline -1 local-rebranding-$REBRANDING_NAME`"
-    fi
-  git checkout -B local-rebranding-$REBRANDING_NAME work
-  "$script_dir/../rebranding/run-rewrite-selfhost.sh" $REBRANDING_NAME
-  git commit -a -m "Automatic rebranding to $REBRANDING_NAME"
-)
-
+if [ "$REBRANDING_DISABLED" == "true" ]
+  then
+    show_warning "Not Rebranding:" "ensure that you don't make this available publicly until rebranded, in order to comply with bluesky-social/social-app guidelines"
+    echo "https://github.com/bluesky-social/social-app?tab=readme-ov-file#forking-guidelines"
+elif [ "$REBRANDING_SCRIPT" == "" ]
+  then
+    show_error "Rebranding Undefined:" "either define REBRANDING_DISABLED=true or set REBRANDING_SCRIPT in environment, in order to comply with bluesky-social/social-app guidelines"
+    echo "https://github.com/bluesky-social/social-app?tab=readme-ov-file#forking-guidelines"
+    exit 1
+  else
+    show_heading "Rebranding social-app" "by scripted changes"
+    REBRANDING_SCRIPT_ABS="`realpath "$REBRANDING_SCRIPT"`"
+    [ "$REBRANDING_NAME" == "" ] && { show_error "Brand name undefined:" "please set REBRANDING_NAME in $params_file" ; exit 1 ; }
+    (
+      cd "$script_dir/repos/social-app"
+      if [ -n "$(git branch --list local-rebranding-$REBRANDING_NAME)" ]
+        then
+          show_warning "Overriding social-app branch" "local-rebranding-$REBRANDING_NAME; was at commit `git log --oneline -1 local-rebranding-$REBRANDING_NAME`"
+        fi
+      git checkout -B local-rebranding-$REBRANDING_NAME work
+      "$REBRANDING_SCRIPT_ABS" $REBRANDING_NAME
+      git commit -a -m "Automatic rebranding to $REBRANDING_NAME"
+    )
+  fi
 
 show_heading "Patching each repository" "with changes required for docker build"
 # 0) apply mimimum patch to build images, regardless self-hosting.
