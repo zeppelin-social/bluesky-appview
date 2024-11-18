@@ -26,7 +26,7 @@ for repoDir in $repoDirs
         then
           echo already on main branch - fast forwarding
           git merge origin/main
-      elif [[ "$current_branch" == "work" || "$current_branch" == "dockerbuild" ]]
+      elif [[ "$current_branch" == "work" || "$current_branch" == "dockerbuild" || "$current_branch" == "local-rebranding-$REBRANDING_NAME" ]]
         then
           echo switching from branch $current_branch to main
           git checkout main
@@ -65,7 +65,11 @@ show_heading "Patching social-app" "to change the branding"
 [ -d "$script_dir/../rebranding" ] || { show_error "rebranding missing:" "please obtain source" ; exit 1 ; }
 (
   cd "$script_dir/repos/social-app"
-  git checkout -b local-rebranding-$REBRANDING_NAME work
+  if [ -n "$(git branch --list local-rebranding-$REBRANDING_NAME)" ]
+    then
+      show_warning "Overriding social-app branch" "local-rebranding-$REBRANDING_NAME; was at commit `git log --oneline -1 local-rebranding-$REBRANDING_NAME`"
+    fi
+  git checkout -B local-rebranding-$REBRANDING_NAME work
   "$script_dir/../rebranding/run-rewrite-selfhost.sh" $REBRANDING_NAME
   git commit -a -m "Automatic rebranding to $REBRANDING_NAME"
 )
