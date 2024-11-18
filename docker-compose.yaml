@@ -335,7 +335,7 @@ services:
       - caddy
 
   social-app:
-    # image: itaru2622/bluesky-social-app:${asof}${DOMAIN}
+    #image: itaru2622/bluesky-social-app:${asof}
     image: itaru2622/bluesky-social-app:${asof}${DOMAIN}
     ports:
       - 8100:8100
