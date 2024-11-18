@@ -33,7 +33,6 @@ _dockerUP_network:
 docker-pull:
 	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull
 docker-pull-antisocial:
-	echo "a${antisocial_services}b"
 	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull ${antisocial_services}
 build:
 	DOMAIN=${DOMAIN} asof=${asof} ${dockerCompose} -f ${f} build ${services}
