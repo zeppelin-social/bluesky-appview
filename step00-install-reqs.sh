@@ -9,10 +9,9 @@ sudo apt update
 # make is used to run setup scripts etc
 # pwgen is used to generate new securish passwords
 sudo apt install -y make pwgen
-# these are used to be able to build and run websocat for testing
-sudo apt install -y cargo curl build-essential libssl-dev pkg-config
-# building cargo
-cargo install --features=ssl websocat
+
+show_heading "Setting up websocat" directly from executable download, in /usr/local/bin
+(sudo curl -o /usr/local/bin/websocat -L https://github.com/vi/websocat/releases/download/v1.13.0/websocat.x86_64-unknown-linux-musl; sudo chmod a+x /usr/local/bin/websocat)
 
 show_heading "Setting up nvm" and node
 # installing nvm and node

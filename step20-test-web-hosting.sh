@@ -16,7 +16,7 @@ show_heading "Checking test web containers"
 
 # test HTTPS and WSS with your docker environment
 curl -L "https://test-wss.${DOMAIN}/"
-websocat "wss://test-wss.${DOMAIN}/ws"
+echo test successful | websocat "wss://test-wss.${DOMAIN}/ws"
 
 # test reverse proxy mapping if it works as expected for bluesky
 #  those should be redirect to PDS
