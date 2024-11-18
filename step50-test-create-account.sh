@@ -8,7 +8,7 @@ set -o allexport
 . "$params_file"
 set +o allexport
 
-export u=thefirstaccountever
+export u=firstever
 test_account_handle=${u}.pds.${DOMAIN}
 test_account_password=`pwgen 16`
 test_account_email=${u}@example.com
