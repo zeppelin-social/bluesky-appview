@@ -62,10 +62,17 @@ test results with 'asof-2024-06-02' and later:<BR>
 [back to top](#top)
 ## <a id="ops"/>operations for self-hosting bluesky (powered by Makefile)
 
+You can follow the instructions manually, or use the defined `./stepNN-*.sh` files
+
 below, it assumes self-hosting domain is <strong>mysky.local.com</strong> (defined in Makefile).<br>
 you can change the domain name by environment variable as below:
 
+
 ### <a id="ops0-configparams"/>0) configure params and install tools for ops
+
+*Scripted:* This step is in `./step00-install-reqs.sh` and `./step01-check-params.sh`.
+The scripts expect you to define the environment variables in `bluesky-params.env`.
+Copy `bluesky-params.env.example` to start off.
 
 ```bash
 # 1) set domain name for self-hosting bluesky
@@ -113,6 +120,9 @@ refer [appendix](#sample-dns-config) for sample DNS server(bind9) configuration.
      -  *.${DOMAIN}
 ```
 
+*Scripted:* You will need to make your own DNS records as described above.
+But you can check them with `./step10-check-network.sh`
+
 2) generate and install CA certificate (usecases for private/closed network, and others using self-signed certificates).
     -  after generation, copy crt and key as ./certs/root.{crt,key}
     -  note: don't forget to install root.crt to your host machine and browser.
@@ -127,7 +137,12 @@ make installCAcert
 # don't forget to install certificate to browser.
 ```
 
+*Scripted:* You can automate this with `./step11-setup-self-signed-cert.sh`, but will need to install to the browser manually.
+If you don't set `EMAIL4CERTS` to `internal` in your environment file, this script won't create certificates and the later steps will do a Let's Encrypt setup.
+
 ### <a id="ops2-check"/>2) check if it's ready to self-host bluesky
+
+*Scripted:* You can automate this with `./step20-test-web-hosting.sh`
 
 ```bash
 # check DNS server responses for your self-host domain
@@ -158,6 +173,12 @@ make    docker-stop-with-clean f=./docker-compose-debug-caddy.yaml
 
 ### <a id="ops3-run"/>3) deploy bluesky on your env.
 
+*Scripted:* For a local test environment, you don't need to make branding changes to the social-app.
+For a public environment you do.
+To be consistent, the scripted environment is set up to build your own social app.
+You can automate this with `./step30-build-social-app.sh` to make the branding changes (or not, if disabled)
+and then `./step31-deploy-bluesky.sh` to pull and deploy the docker images.
+
 first, describes deploying bluesky with prebuild images.<BR>
 [later](#hack-clone-and-build) describes how to build images from sources by yourself.
 
@@ -180,6 +201,8 @@ make docker-start-bsky
 
 ### <a id="ops4-run-fg"/>4) deploy feed-generator on your env.
 
+*Scripted:* You can automate this with `./step40-deploy-feedgen.sh`.
+
 ```bash
 # 1) check if social-app is ready to serve.
 curl -L https://social-app.${DOMAIN}/
@@ -195,6 +218,8 @@ make publishFeed
 ```
 
 ### <a id="ops4-run-ozone"/>4-2) deploy ozone on your env.
+
+*Scripted:* You can automate this with `./step41-deploy-ozone.sh` *(currently untested)*.
 
 ```bash
 # 1) create account for ozone service/admin
@@ -221,12 +246,17 @@ make api_ozone_member_add   role=  did=did:plc:
 ```
 
 ### <a id="ops4-run-jetstream"/>4-3) deploy jetstream on your env.
+
+*Scripted:* not yet scripted...
+
 ```bash
 make docker-start-bsky-jetstream
 ```
 
 
 ### <a id="ops5-play"/>5) play with self-hosted blusky.
+
+*Scripted:* you can automate this with `./step50-test-create-account.sh`
 
 on your browser, access ```https://social-app.${DOMAIN}/``` such as ```https://social-app.mysky.local.com/```
 
