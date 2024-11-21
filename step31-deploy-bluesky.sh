@@ -8,8 +8,11 @@ set -o allexport
 . "$params_file"
 set +o allexport
 
-show_heading "Fetching unbranded containers" "for required services other than social-app"
-unbranded_services=$(yq '.services | keys' docker-compose.yaml | grep '[a-z]' | grep -v social-app | cut -d'"' -f2)
+show_heading "Fetching unbranded containers" "for required services with generic builds"
+branded_services=$(yq '.services | to_entries | .[] | .key as $parent | select(.value["image"] | contains("${DOMAIN}"))|$parent' docker-compose.yaml | cut -d'"' -f2)
+unbranded_services=$(yq '.services | to_entries | .[] | .key as $parent | select(.value["image"] | contains("${DOMAIN}") | not)|$parent' docker-compose.yaml | cut -d'"' -f2)
+echo branded $branded_services
+echo unbranded $unbranded_services
 make docker-pull-unbranded unbranded_services="${unbranded_services//$'\n'/ }" || { show_error "Fetching Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Deploy required containers" "(database, caddy etc)"
