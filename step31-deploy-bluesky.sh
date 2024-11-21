@@ -8,9 +8,9 @@ set -o allexport
 . "$params_file"
 set +o allexport
 
-show_heading "Fetching containers" "for required services other than social-app"
-antisocial_services=$(yq '.services | keys' docker-compose.yaml | grep '[a-z]' | grep -v social-app | cut -d'"' -f2)
-make docker-pull-antisocial antisocial_services="${antisocial_services//$'\n'/ }" || { show_error "Fetching Containers failed:" "Please see error above" ; exit 1 ; }
+show_heading "Fetching unbranded containers" "for required services other than social-app"
+unbranded_services=$(yq '.services | keys' docker-compose.yaml | grep '[a-z]' | grep -v social-app | cut -d'"' -f2)
+make docker-pull-unbranded unbranded_services="${unbranded_services//$'\n'/ }" || { show_error "Fetching Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Deploy required containers" "(database, caddy etc)"
 make docker-start-nowatch || { show_error "Required Containers failed:" "Please see error above" ; exit 1 ; }

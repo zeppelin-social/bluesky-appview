@@ -32,8 +32,8 @@ _dockerUP_network:
 	-docker network create ${docker_network}
 docker-pull:
 	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull
-docker-pull-antisocial:
-	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull ${antisocial_services}
+docker-pull-unbranded:
+	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull ${unbranded_services}
 build:
 	DOMAIN=${DOMAIN} asof=${asof} ${dockerCompose} -f ${f} build ${services}
 
