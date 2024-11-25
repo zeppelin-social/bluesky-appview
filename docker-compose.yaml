@@ -77,7 +77,7 @@ services:
     volumes:
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
   # to generate HTTPS certifications on-demand <<<<<
-  # debug for caddy>>> 
+  # debug for caddy>>>
 
   test-wss:
     image: itaru2622/fastapi:bookworm
@@ -172,32 +172,32 @@ services:
       - opensearch:/usr/share/opensearch/data/
     restart: always
 
-  plc:
-#   image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:${asof}
-    image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:latest
-    ports:
-      - 2582:2582
-    volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-      # supporting self-signed certificates, easiest way <<<<
-    environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/plc
-      - DB_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
-      - DB_MIGRATE_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
-      - DEBUG_MODE=1
-      - ENABLE_MIGRATIONS=true
-      - GOINSECURE=${GOINSECURE}
-      - LOG_DESTINATION=1
-      - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - PORT=2582
-    restart: always
-    depends_on:
-      - database
-      - caddy
+#  plc:
+##   image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:${asof}
+#    image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:latest
+#    ports:
+#      - 2582:2582
+#    volumes:
+#      # supporting self-signed certificates, easiest way >>>>
+#      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+#      # supporting self-signed certificates, easiest way <<<<
+#    environment:
+#      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/plc
+#      - DB_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
+#      - DB_MIGRATE_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
+#      - DEBUG_MODE=1
+#      - ENABLE_MIGRATIONS=true
+#      - GOINSECURE=${GOINSECURE}
+#      - LOG_DESTINATION=1
+#      - LOG_ENABLED=true
+#      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
+#      - NODE_ENV=development
+#      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
+#      - PORT=2582
+#    restart: always
+#    depends_on:
+#      - database
+#      - caddy
 
   pds:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
@@ -253,7 +253,7 @@ services:
       - caddy
 
   bgs:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-bgs:${asof}
+    image: ${BRANDED_NAMESPACE}/bluesky-indigo-bgs:${branded_asof}-${DOMAIN}
     ports:
       - 2470:2470
     command: /bigsky
@@ -285,7 +285,7 @@ services:
 
   bsky:
     # appview(api)
-    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-bsky:${asof}
+    image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky:${branded_asof}-${DOMAIN}
     ports:
       - 2584:2584
     expose:

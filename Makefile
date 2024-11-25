@@ -2,14 +2,14 @@
 # starts: definitions, need to care in especial.
 
 # domain of self-hosting bluesky (care TLD, otherwise get failure, ie: NG=>mysky.local)
-DOMAIN ?=mysky.local.com
+DOMAIN ?=zeppelin.social
 
 # FQDN to make internal services available on, where different from the default
 # This is, for example, to publish social-app on somewhere.app instead of social-app.somewhere.app
 # and pds on somewhere.social instead of pds.somewhere.app
 
-SOCIAL_DOMAIN ?= social-app.${DOMAIN}
-PDS_DOMAIN ?= pds.${DOMAIN}
+SOCIAL_DOMAIN ?= ${DOMAIN}
+PDS_DOMAIN ?= ${DOMAIN}
 
 # FQDN of your self hosting bsky components.  DO NOT CHANGE THOSE, FOR USUAL CASES.
 # CHANGING THESE WITHOUT UNDERSTANDING WHAT YOU DOING, GETTING TROUBLES.
@@ -24,7 +24,7 @@ jetstreamFQDN ?=jetstream.${DOMAIN}
 ozoneFQDN     ?=ozone.${DOMAIN}
 palomarFQDN   ?=palomar.${DOMAIN}
 pdsFQDN       ?=${PDS_DOMAIN}
-plcFQDN       ?=plc.${DOMAIN}
+plcFQDN       ?=plc.directory
 publicApiFQDN ?=public.api.${DOMAIN}
 socialappFQDN ?=${SOCIAL_DOMAIN}
 
@@ -100,10 +100,10 @@ gh  ?=$(addsuffix /, https://github.com)
 gh_git ?=$(addsuffix :, git@github.com)
 
 # origin repo prefix to clone source, points code owner(org). DO NOT CHANGE THESE, FOR USUAL CASES. these are features for experts.
-origin_repo_bsky_prefix ?=${gh}bluesky-social/
+origin_repo_bsky_prefix ?=${gh}appview-wg-bsky/
 origin_repo_did_prefix  ?=${gh}did-method-plc/
 
-fork_repo_prefix ?=${gh_git}appview-wg-bsky/
+fork_repo_prefix ?=${gh}appview-wg-bsky/
 #fork_repo_prefix =${gh_git}itaru2622/bluesky-
 
 # default log level.
@@ -118,7 +118,7 @@ LOG_LEVEL_DEFAULT ?=debug
 #    export Sdep='caddy caddy-sidecar database redis opensearch test-wss test-ws test-indigo pgadmin'
 #    # no plc in Sdep, comparing below line.
 #
-Sdep  ?=caddy caddy-sidecar database redis opensearch plc test-wss test-ws test-indigo pgadmin
+Sdep  ?=caddy caddy-sidecar database redis opensearch test-wss test-ws test-indigo pgadmin
 Sbsky ?=pds bgs bsky social-app palomar
 Sfeed ?=feed-generator
 #Sozone ?=ozone ozone-daemon
@@ -180,11 +180,11 @@ ifneq ($(fork_repo_prefix),)
 endif
 
 
-${rDir}/did-method-plc:
-	git clone ${origin_repo_did_prefix}did-method-plc.git $@
-ifneq ($(fork_repo_prefix),)
-	-(cd $@; git remote add fork ${fork_repo_prefix}did-method-plc.git; git remote update fork)
-endif
+# ${rDir}/did-method-plc:
+# 	git clone ${origin_repo_did_prefix}did-method-plc.git $@
+# ifneq ($(fork_repo_prefix),)
+# 	-(cd $@; git remote add fork ${fork_repo_prefix}did-method-plc.git; git remote update fork)
+# endif
 
 
 ${rDir}/jetstream:

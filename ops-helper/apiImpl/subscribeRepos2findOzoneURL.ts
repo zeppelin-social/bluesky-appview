@@ -1,81 +1,88 @@
 #!/usr/bin/env tsx
 
 /*
-** find ozone service endpoint via subscribeRepos
-*/
+ ** find ozone service endpoint via subscribeRepos
+ */
 
-
-import { Subscription }                    from '@atproto/xrpc-server'
-import { IdResolver, MemoryCache }         from '@atproto/identity'
-import { getServiceEndpoint, DidDocument } from '@atproto/common'
-import yargs                               from 'yargs/yargs';
+import { Subscription } from "@atproto/xrpc-server";
+import { IdResolver, MemoryCache } from "@atproto/identity";
+import { getServiceEndpoint, DidDocument } from "@atproto/common";
+import yargs from "yargs/yargs";
 
 // TODO: use official typedef with lexicon base, atproto/packages/api/src/client/types/com/atproto/...
 interface EvObject {
- [key: string]: any;
+  [key: string]: any;
 }
 
 // receive events => dispatch them to handler
-const run = async function(sub: Subscription)
-{
-   for await (const ev of sub) {
-      try {
-         await handleEvent(ev as EvObject)
-      } catch (e){
-         console.log('###### got error', e)
-      }
-   }
-}
+const run = async function (sub: Subscription) {
+  for await (const ev of sub) {
+    try {
+      await handleEvent(ev as EvObject);
+    } catch (e) {
+      console.log("###### got error", e);
+    }
+  }
+};
 
 // find event relatd to ozone service URL endpoint
-const handleEvent = async function(ev: EvObject) {
+const handleEvent = async function (ev: EvObject) {
+  if (
+    ev["$type"] != "com.atproto.sync.subscribeRepos#commit" ||
+    ev.ops == undefined
+  ) {
+    console.log("# ev != commit||ops ==> ignore");
+    return;
+  }
 
-    if ( (ev['$type'] != 'com.atproto.sync.subscribeRepos#commit') || (ev.ops == undefined) ) {
-      console.log('# ev != commit||ops ==> ignore')
-      return
-    }
+  // check ev.opts if laberler.service exists...
+  const labeler =
+    ev.ops.find((op: any) => op.path == "app.bsky.labeler.service/self") !=
+    undefined;
+  if (labeler == false) {
+    console.log("# ev == commit, ! labeler ==> ignore");
+    return;
+  }
 
-    // check ev.opts if laberler.service exists...
-    const labeler = ( ev.ops.find( (op:any) => op.path=='app.bsky.labeler.service/self' ) != undefined );
-    if (labeler == false) {
-       console.log('# ev == commit, ! labeler ==> ignore')
-      return
-    }
-
-    // found event regarding to labeler => get its service endpoint (DID: ev.repo).
-    const endpoint = await did2ServiceEndpoint( ev.repo, '#atproto_labeler')
-    console.log ("#### Commit event(labeler):", ev.repo, " => ",  endpoint )
-}
+  // found event regarding to labeler => get its service endpoint (DID: ev.repo).
+  const endpoint = await did2ServiceEndpoint(ev.repo, "#atproto_labeler");
+  console.log("#### Commit event(labeler):", ev.repo, " => ", endpoint);
+};
 
 //get service endpoint from did via didDoc
-const did2ServiceEndpoint = async function(did: string, serviceId: string) {
-
-    const doc  = await idResolver.did.resolve(did)
-    return getServiceEndpoint(doc as DidDocument, { id: serviceId })
-}
+const did2ServiceEndpoint = async function (did: string, serviceId: string) {
+  const doc = await idResolver.did.resolve(did);
+  return getServiceEndpoint(doc as DidDocument, { id: serviceId });
+};
 
 // =========================================================================
-const dom = process.env.DOMAIN ?? 'mysky.local.com'
+const dom = process.env.DOMAIN ?? "mysky.local.com";
 
 // options to support any deployment.
-const opt = yargs(process.argv.slice(2)).options({
-  bgsURL:    { type: 'string', default: 'wss://bgs.' + dom },
-  plcURL:    { type: 'string', default: 'https://plc.' + dom },
-  tls:       { type: 'string', default: '0',          description: 'ignore TLS verification(NODE_TLS_REJECT_UNAUTHORIZED)'},
-}).parseSync();
+const opt = yargs(process.argv.slice(2))
+  .options({
+    bgsURL: { type: "string", default: "wss://bgs." + dom },
+    plcURL: { type: "string", default: "https://plc.directory" },
+    tls: {
+      type: "string",
+      default: "0",
+      description: "ignore TLS verification(NODE_TLS_REJECT_UNAUTHORIZED)",
+    },
+  })
+  .parseSync();
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED']=opt.tls
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = opt.tls;
 
 const sub = new Subscription({
   service: opt.bgsURL,
-  method:  'com.atproto.sync.subscribeRepos',
+  method: "com.atproto.sync.subscribeRepos",
   getState: () => ({}),
   validate: (val: unknown) => val as object, // TODO: validate with lexicon
 });
 
-const didCache =   new MemoryCache()
-const idResolver = new IdResolver({ plcUrl: opt.plcURL, didCache: didCache })
-run(sub)
+const didCache = new MemoryCache();
+const idResolver = new IdResolver({ plcUrl: opt.plcURL, didCache: didCache });
+run(sub);
 
 /* sample events:
  {
