@@ -103,7 +103,7 @@ gh_git ?=$(addsuffix :, git@github.com)
 origin_repo_bsky_prefix ?=${gh}bluesky-social/
 origin_repo_did_prefix  ?=${gh}did-method-plc/
 
-fork_repo_prefix ?=
+fork_repo_prefix ?=${gh_git}appview-wg-bsky/
 #fork_repo_prefix =${gh_git}itaru2622/bluesky-
 
 # default log level.
