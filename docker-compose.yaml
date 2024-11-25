@@ -226,7 +226,7 @@ services:
       - PDS_DEV_MODE=true
 #     - PDS_BLOBSTORE_DISK_TMP_LOCATION=/pds/image/tmp
       - PDS_DID_PLC_URL=https://${plcFQDN}
-      - PDS_EMAIL_FROM_ADDRESS=no-reply@gmail.com
+      - PDS_EMAIL_FROM_ADDRESS=pds@${DOMAIN}
       - PDS_EMAIL_SMTP_URL=${PDS_EMAIL_SMTP_URL}
       - PDS_ENABLE_DID_DOC_WITH_SESSION=true
       - PDS_HOSTNAME=${pdsFQDN}
