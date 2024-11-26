@@ -92,7 +92,7 @@ services:
     working_dir: /opt/fastapi-samples/3catchall
 
   test-indigo:
-    image: itaru2622/bluesky-indigo-tools:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-tools:${asof}
     command: tail -f /dev/null
     environment:
       - ATP_PLC_HOST=https://plc.${DOMAIN}
@@ -147,7 +147,7 @@ services:
     restart: always
 
   opensearch:
-    image: itaru2622/bluesky-indigo-opensearch:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-opensearch:${asof}
     ports:
       - 9200:9200
     environment:
@@ -171,8 +171,8 @@ services:
     restart: always
 
   plc:
-#   image: itaru2622/bluesky-did-method-plc:${asof}
-    image: itaru2622/bluesky-did-method-plc:latest
+#   image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:latest
     ports:
       - 2582:2582
     volumes:
@@ -198,7 +198,8 @@ services:
       - caddy
 
   pds:
-    image: itaru2622/bluesky-atproto-pds:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
+    # image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}${DOMAIN}
     ports:
       - 2583:2583
     expose:
@@ -250,7 +251,7 @@ services:
       - caddy
 
   bgs:
-    image: itaru2622/bluesky-indigo-bgs:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-bgs:${asof}
     ports:
       - 2470:2470
     command: /bigsky
@@ -282,7 +283,7 @@ services:
 
   bsky:
     # appview(api)
-    image: itaru2622/bluesky-atproto-bsky:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-bsky:${asof}
     ports:
       - 2584:2584
     expose:
@@ -335,8 +336,8 @@ services:
       - caddy
 
   social-app:
-    #image: itaru2622/bluesky-social-app:${asof}
-    image: itaru2622/bluesky-social-app:${asof}${DOMAIN}
+    # image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
+    image: ${BRANDED_NAMESPACE}/bluesky-social-app:${asof}${DOMAIN}
     ports:
       - 8100:8100
     command: /usr/bin/bskyweb serve
@@ -362,7 +363,7 @@ services:
     restart: always
 
   palomar:
-    image: itaru2622/bluesky-indigo-palomar:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-palomar:${asof}
     ports:
       - 3999:3999
     volumes:
@@ -390,7 +391,7 @@ services:
       - caddy
 
   jetstream:
-    image: itaru2622/bluesky-jetstream:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-jetstream:${asof}
     ports:
       - 6008:6008
       - 6009:6009
@@ -411,7 +412,7 @@ services:
 
   ozone-standalone:
     # moderation-api:
-    image: itaru2622/bluesky-ozone:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-ozone:${asof}
     ports:
       - 3000:3000
     volumes:
@@ -458,7 +459,7 @@ services:
 
   ozone:
     # moderation-api:
-    image: itaru2622/bluesky-atproto-ozone:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-ozone:${asof}
     command: node --enable-source-maps api.js
     ports:
       - 3000:3000
@@ -499,7 +500,7 @@ services:
       - caddy
 
   ozone-daemon:
-    image: itaru2622/bluesky-atproto-ozone:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-ozone:${asof}
     command: node --enable-source-maps daemon.js
     volumes:
       # supporting self-signed certificates, easiest way >>>>
@@ -538,8 +539,8 @@ services:
       - caddy
 
   feed-generator:
-   #image: itaru2622/bluesky-feed-generator:${asof}
-    image: itaru2622/bluesky-feed-generator:latest
+   #image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:${asof}
+    image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:latest
     ports:
       - 2586:3000
     environment:
