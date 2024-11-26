@@ -198,8 +198,8 @@ services:
       - caddy
 
   pds:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
-    # image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}${DOMAIN}
+    # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
+    image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}${DOMAIN}
     ports:
       - 2583:2583
     expose:
