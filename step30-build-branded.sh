@@ -83,7 +83,7 @@ show_heading "Patching each repository" "with changes required for docker build"
 # 0) apply mimimum patch to build images, regardless self-hosting.
 #      as described in https://github.com/bluesky-social/atproto/discussions/2026 for feed-generator/Dockerfile etc.
 # NOTE: this op checks out a new branch before applying patch, and stays on the new branch
-make patch-dockerbuild
+make patch-dockerbuild checkoutbranchargs=-B commitargs=--no-verify
 
 for branded_service in $REBRANDED_SERVICES
   do
