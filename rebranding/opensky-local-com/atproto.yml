@@ -1,0 +1,51 @@
+rules:
+- id: app-name
+  patterns:
+    - pattern: "Bluesky"
+  fix: "Opensky"
+  message: Update the application name
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    exclude:
+      - LICENSE
+
+- id: app-name
+  patterns:
+    - pattern: "the social internet"
+  fix: "the bland social internet"
+  message: Update the braggy self-description
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    exclude:
+      - LICENSE
+
+# TODO: make email images
+- id: email-image
+  patterns:
+    - pattern: "https://bsky.social/about/images/email/"
+  fix: "https://social-app.opensky.local.com/static/"
+  message: Update the email in-message image URLs
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    include:
+      - packages/pds/src/mailer/templates
+
+- id: email-emoji
+  patterns:
+    - pattern: 'alt="🦋"'
+  fix: 'alt="☁️"'
+  message: Update the email in-message image URLs
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    include:
+      - packages/pds/src/mailer/templates
+
+

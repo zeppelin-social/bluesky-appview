@@ -1,0 +1,40 @@
+{
+   "user_defined_delimiters":[
+      ["(", ")"],
+      ["{", "}"],
+      ["[", "]"],
+      [
+         "<",
+         ">"
+      ]
+   ],
+   "escapable_string_literals":{
+      "delimiters":[
+         "\"",
+         "'"
+      ],
+      "escape_character":"\\"
+   },
+   "raw_string_literals": [
+      [
+        "`",
+        "`"
+      ]
+   ],
+   "comments":[
+      [
+         "Multiline",
+         "<!--",
+         "-->"
+      ],
+      [
+         "Multiline",
+         "/*",
+         "*/"
+      ],
+      [
+         "Until_newline",
+         "//"
+      ]
+   ]
+}

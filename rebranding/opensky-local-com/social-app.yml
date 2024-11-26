@@ -1,0 +1,387 @@
+rules:
+- id: public-api
+  patterns:
+    - pattern: 'https://public.api.bsky.app'
+  fix: 'https://public.api.opensky.local.com'
+  message: Update the public API to use our public app view (this will in due course select lexicons etc)
+  languages:
+    - generic
+  severity: WARNING
+
+- id: non-public-api
+  patterns:
+    - pattern: 'https://api.bsky.app'
+  fix: 'https://bsky.opensky.local.com'
+  message: Update the non-public API to use our authenticated app view (this will in due course select lexicons etc)
+  languages:
+    - generic
+  severity: WARNING
+
+- id: web-view
+  patterns:
+    - pattern: 'https://bsky.app'
+  fix: 'https://social-app.opensky.local.com'
+  message: Update the web view to use the compiled web instance of social-app
+  languages:
+    - generic
+  severity: WARNING
+
+- id: relay-domain
+  patterns:
+    - pattern: 'bsky.network'
+  fix: 'bgs.opensky.local.com'
+  message: Update to use our relay and host domains (CHECK)
+  languages:
+    - generic
+  severity: WARNING
+
+- id: chat-domain
+  patterns:
+    - pattern: 'bsky.chat'
+  fix: 'chat.opensky.local.com'
+  message: Update to use our chat server domain (CHECK)
+  languages:
+    - generic
+  severity: WARNING
+
+- id: hosting-provider
+  patterns:
+    - pattern: 'https://bsky.social'
+  fix: 'https://pds.opensky.local.com'
+  message: Update the website for bluesky handles / data storage. bsky.social is also a webpage, but the key here is *.${website-domain} which are handles.
+  languages:
+    - generic
+  severity: WARNING
+
+- id: hosting-provider-name
+  patterns:
+    - pattern: 'bsky.social'
+  fix: 'pds.opensky.local.com'
+  message: Update the website for bluesky handles / data storage. bsky.social is also a webpage, but the key here is *.${website-domain} which are handles.
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    exclude: # these files all include references to individual bluesky handles
+      - src/view/screens/Profile.tsx
+      - src/view/shell/Drawer.tsx
+      - src/view/shell/desktop/RightNav.tsx
+
+- id: default-feeds
+  patterns:
+    - pattern: '[DISCOVER_SAVED_FEED, TIMELINE_SAVED_FEED]'
+  fix: '[TIMELINE_SAVED_FEED]'
+  message: Update the default feeds for a new user to just be the timeline feed
+  languages:
+    - typescript
+  severity: WARNING
+  paths:
+    include:
+      - src/lib/constants.ts
+
+- id: default-feeds-2
+  patterns:
+    - pattern: '[{...DISCOVER_SAVED_FEED,id: ...}, ...]'
+  fix-regex:
+    regex: '(?ms:[{][^.]*[.][.][.]DISCOVER_SAVED_FEED[^}]*[}],)'
+    replacement: ''
+  message: Update the default feeds for a new user to just be the timeline feed
+  languages:
+    - typescript
+  severity: WARNING
+  paths:
+    include:
+      - src/screens/Onboarding/StepFinished.tsx
+
+- id: xyz-web-package
+  patterns:
+    - pattern: 'xyz.blueskyweb.app'
+  fix: 'xyz.opensky.app'
+  message: Update the web package ID
+  languages:
+    - generic
+  severity: WARNING
+
+- id: google-services-adjust-url
+  patterns:
+    - pattern: 'blueskyweb'
+  fix: 'openskyweb'
+  message: Adjust dummy Google services url
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    include:
+      - "google-services.json.example"
+      - "google-services.json"
+
+- id: app-domain
+  patterns:
+    - pattern: 'bsky.app'
+  fix: 'opensky.local.com'
+  message: Update the application domain
+  languages:
+    - generic
+  severity: WARNING
+
+- id: app-slug-scheme
+  patterns:
+    - pattern-either:
+      - pattern: "slug: 'bluesky'"
+      - pattern: "scheme: 'bluesky'"
+  fix-regex:
+    regex: "bluesky"
+    replacement: 'opensky'
+  message: Update the slug and scheme for this social network
+  languages:
+    - javascript
+  severity: WARNING
+
+- id: expo-app-owner
+  patterns:
+    - pattern: "owner: 'blueskysocial'"
+  fix: "owner: 'davidfinc-org'"
+  message: Update the expo project owner for this social network
+  languages:
+    - generic
+  severity: WARNING
+
+- id: expo-app-organization
+  patterns:
+    - pattern: "organization: 'blueskyweb'"
+  fix: "organization: 'openskyweb'"
+  message: Update the expo project owner for this social network
+  languages:
+    - generic
+  severity: WARNING
+
+- id: expo-project-id
+  patterns:
+    - pattern: "55bd077a-d905-4184-9c7f-94789ba0f302"
+  fix: "87ab4766-b66c-489c-98ca-65e740fa205b"
+  message: Update the expo project ID
+  languages:
+    - generic
+  severity: WARNING
+
+- id: apple-groups
+  patterns:
+    - pattern: "group.app.bsky"
+  fix: "group.app.opensky"
+  message: Update the permission groups used by Apple
+  languages:
+    - generic
+  severity: WARNING
+
+- id: app-name
+  patterns:
+    - pattern: "Bluesky"
+  fix: "Opensky"
+  message: Update the application name
+  languages:
+    - generic
+  severity: WARNING
+  paths:
+    exclude:
+      - LICENSE
+
+- id: notification-service-extension
+  patterns:
+    - pattern: "BlueskyNSE"
+  # fix: "OpenskyNSE"
+  message: Update the notification service extension (requires RENAME)
+  languages:
+    - generic
+  severity: WARNING
+
+- id: clip-module
+  patterns:
+    - pattern: "BlueskyClip"
+  # fix: "OpenskyClip"
+  message: Update the clip module name (requires RENAME)
+  languages:
+    - generic
+  severity: WARNING
+
+- id: generator-name
+  patterns:
+    - pattern: "bskyweb"
+  # fix: "openskyweb"
+  message: Update the web generator name
+  languages:
+    - generic
+  severity: WARNING
+
+- id: background-color
+  patterns:
+    - pattern: "#1185FE"
+  fix: "#E88627"
+  message: Background theme colour
+  languages:
+    - generic
+  severity: WARNING
+
+- id: style-color-names
+  patterns:
+    - pattern: "unreadNotifBg"
+  fix: "  orange1: '#e88627',\norange2: '#d04304',\n\nunreadNotifBg"
+  message: Add in orange style colours
+  languages:
+    - generic
+  paths:
+    include:
+      - src/lib/styles.ts
+  severity: WARNING
+
+- id: style-color-usage-1
+  patterns:
+    - pattern: "colors.blue3"
+  fix: "colors.orange1"
+  message: replace blue with orange colours
+  languages:
+    - typescript
+  severity: WARNING
+
+- id: style-color-usage-2
+  patterns:
+    - pattern: "colors.blue2"
+  fix: "colors.orange2"
+  message: replace blue with orange colours
+  languages:
+    - typescript
+  severity: WARNING
+
+- id: style-color-usage-3
+  patterns:
+    - pattern: "colors.blue0"
+  fix: "colors.orange2"
+  message: replace blue with orange colours
+  languages:
+    - typescript
+  severity: WARNING
+
+- id: style-color-usage-4
+  patterns:
+    - pattern: "colors.blue4"
+  fix: "colors.orange1"
+  message: replace blue with orange colours
+  languages:
+    - typescript
+  severity: WARNING
+
+- id: million-users
+  patterns:
+    - pattern: '10 million users'
+  fix: "0 million users"
+  message: Correct the number of million users we have
+  languages:
+    - generic
+  severity: WARNING
+
+- id: million-users-2
+  patterns:
+    - pattern: '10M users'
+  fix: "0M users"
+  message: Correct the number of million users we have
+  languages:
+    - generic
+  severity: WARNING
+
+- id: whats-cooking
+  patterns:
+    - pattern: "What's up"
+  fix: "What's cooking"
+  message: Adjust the slogan
+  languages:
+    - generic
+  severity: WARNING
+
+copy_files:
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "assets/"
+  files:
+    - "default-avatar.png"
+    - "favicon.png"
+    - "icon-android-background.png"
+    - "icon-android-foreground.png"
+    - "icon-android-notification.png"
+    - "icon.png"
+    - "logo.png"
+    - "splash-dark.png"
+    - "splash.png"
+
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "bskyweb/static/"
+  files:
+    - "favicon.png"
+    - "favicon-16x16.png"
+    - "favicon-32x32.png"
+    - "apple-touch-icon.png"
+    - "safari-pinned-tab.svg" # TODO: make this get the compact one
+    - "social-card-default.png"
+    - "social-card-default-gradient.png"
+    - "email_mark_light.png"
+    - "email_mark_dark.png"
+    - "email_logo_default.png"
+
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "bskyembed/assets/"
+  files:
+    - "logo.svg"
+
+svg_html_subst:
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "web"
+  file_substs:
+    - src: "logo.compact.svg"
+      dest: "index.html"
+      view_box: "0 0 512 512"
+
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "bskyweb/templates/"
+  file_substs:
+    - src: "logo.compact.svg"
+      dest: "base.html"
+      view_box: "0 0 512 512"
+
+svg_tsx_subst:
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "src/view/icons"
+  file_substs:
+    - src: "logo.compact.svg"
+      dest: "Logo.tsx"
+      view_box: "0 0 512 512"
+      pre_replace:
+        - find: '\bfill:[^;]*;'
+          replace: 'fill:{_fill};'
+      post_replace:
+        - find: 'fill="{([^}]*)}"'
+          replace: 'fill={\1}'
+    - src: "logo.compact.svg"
+      dest: "Logomark.tsx"
+      view_box: "0 0 512 512"
+      pre_replace:
+        - find: '\bfill:[^;]*;'
+          replace: 'fill:{fill || pal.text.color};'
+      post_replace:
+        - find: 'fill="{([^}]*)}"'
+          replace: 'fill={\1}'
+    - src: "Logotype.compact.svg"
+      dest: "Logotype.tsx"
+      view_box: "0 0 700 190"
+      pre_replace:
+        - find: '\bfill:[^;]*;'
+          replace: 'fill:{fill || pal.text.color};'
+      post_replace:
+        - find: 'fill="{([^}]*)}"'
+          replace: 'fill={\1}'
+
+- src_dir: "${rebranding_dir}/opensky/generated/"
+  dest_dir: "src/"
+  file_substs:
+    - src: "logo.compact.svg"
+      dest: "Splash.tsx"
+      view_box: "0 0 512 512"
+
+# note that src/components/icons/TEMPLATE.tsx has a globe icon in it, doesn't need replacing
+
