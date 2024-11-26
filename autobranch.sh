@@ -17,6 +17,7 @@ function usage {
   echo ""
   echo "Options:"
   echo " --clobber|-C will overwrite the target_branch rather than merging in changes from upstream_branch, if it exists"
+  echo " --delete|-D will delete the target_branch rather than merging in changes from upstream_branch, if it exists"
   echo ""
 }
 
@@ -31,7 +32,19 @@ case "$1" in
   -C|--clobber)
     do_clobber=true
     shift
+    ;;
+  -D|--delete)
+    do_delete=true
+    shift
+    ;;
 esac
+
+if [[ "$do_clobber" == "true" && "$do_delete" == "true" ]]
+  then
+    echo Error in parameters - cannot both clobber and delete >&2
+    usage
+    exit 1
+  fi
 
 target_branch="$1"
 upstream_branch="$2"
@@ -45,7 +58,14 @@ git fetch --all
 git diff --exit-code --stat || { show_error "Uncommitted changes in $repoName:" "inspect $repoDir and adjust as necessary" ; exit 1 ; }
 current_branch="`git rev-parse --abbrev-ref HEAD`"
 
-if [[ "$current_branch" == "$target_branch" ]]
+if [[ "$do_delete" == "true" ]]
+  then
+    if [[ "$current_branch" == "$target_branch" ]]
+      then
+        show_error "Cannot delete branch $current_branch" "in $repoName - it's the current checked out branch"
+        exit 1
+      fi
+elif [[ "$current_branch" == "$target_branch" ]]
   then
     echo already on $target_branch branch - merging upstream changes from $upstream_branch
 elif [[ "$current_branch" == "`basename $upstream_branch`" ]]
@@ -75,10 +95,17 @@ if [ -n "$(git branch --list $target_branch)" ]
       then
         show_warning "Overwriting $repoName branch $target_branch" "based on $upstream_branch; was at commit `git log --oneline -1 $target_branch`"
         git checkout -B $target_branch $upstream_branch
+    elif [[ "$do_delete" == true ]]
+      then
+        show_warning "Deleting $repoName branch $target_branch" "; was at commit `git log --oneline -1 $target_branch`"
+        git branch -D $target_branch
       else
         git checkout $target_branch
         git merge $upstream_branch
     fi
+elif [[ "$do_delete" == true ]]
+  then
+    show_info "Deleting $repoName branch $target_branch" "not done - does not exist"
 else
   git checkout -b $target_branch $upstream_branch
 fi

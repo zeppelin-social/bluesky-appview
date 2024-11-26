@@ -69,6 +69,16 @@ elif [ "$REBRANDING_SCRIPT" == "" ]
       done
   fi
 
+show_heading "Deleting existing dockerbuild branches" "from the different repositories"
+for repoDir in $repoDirs
+  do
+    (
+      cd $repoDir
+      echo "$blue_color$clear_bold`basename ${repoDir}`$reset_color"
+      $script_dir/autobranch.sh -D dockerbuild local-rebranding-$REBRANDING_NAME
+    ) || { show_error "Error deleting dockerbuild branch:" "inspect $repoDir and adjust as necessary" ; exit 1 ; }
+  done
+
 show_heading "Patching each repository" "with changes required for docker build"
 # 0) apply mimimum patch to build images, regardless self-hosting.
 #      as described in https://github.com/bluesky-social/atproto/discussions/2026 for feed-generator/Dockerfile etc.
