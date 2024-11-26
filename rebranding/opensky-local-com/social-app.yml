@@ -297,7 +297,7 @@ rules:
   severity: WARNING
 
 copy_files:
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "assets/"
   files:
     - "default-avatar.png"
@@ -310,7 +310,7 @@ copy_files:
     - "splash-dark.png"
     - "splash.png"
 
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "bskyweb/static/"
   files:
     - "favicon.png"
@@ -324,20 +324,20 @@ copy_files:
     - "email_mark_dark.png"
     - "email_logo_default.png"
 
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "bskyembed/assets/"
   files:
     - "logo.svg"
 
 svg_html_subst:
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "web"
   file_substs:
     - src: "logo.compact.svg"
       dest: "index.html"
       view_box: "0 0 512 512"
 
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "bskyweb/templates/"
   file_substs:
     - src: "logo.compact.svg"
@@ -345,7 +345,7 @@ svg_html_subst:
       view_box: "0 0 512 512"
 
 svg_tsx_subst:
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "src/view/icons"
   file_substs:
     - src: "logo.compact.svg"
@@ -376,7 +376,7 @@ svg_tsx_subst:
         - find: 'fill="{([^}]*)}"'
           replace: 'fill={\1}'
 
-- src_dir: "${rebranding_dir}/opensky/generated/"
+- src_dir: "${BRANDING_IMAGES_DIR}/generated/"
   dest_dir: "src/"
   file_substs:
     - src: "logo.compact.svg"
