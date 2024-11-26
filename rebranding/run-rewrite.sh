@@ -40,7 +40,7 @@ echo "BRAND_IMAGES_DIR=\"${BRAND_IMAGES_DIR}\"" >> "$BRAND_TMP_ENV_FILE"
 
 [ -f bluesky-params.env ] && { set -a ; . $script_dir/bluesky-params.env ; set +a ; }
 
-python $BRAND_IMAGES_DIR/export-brand-images.py || { show_error "Error exporting images" "from $BRAND_IMAGES_DIR" ; exit 1 ; }
+python $script_dir/export-brand-images.py $BRAND_IMAGES_DIR/$BRAND_IMAGES_FILE || { show_error "Error exporting images" "from $BRAND_IMAGES_DIR" ; exit 1 ; }
 
 [ "$social_app_dir" == "" ] && social_app_dir=../repos/social-app/
 [ "$atproto_dir" == "" ] && atproto_dir=../repos/atproto/
