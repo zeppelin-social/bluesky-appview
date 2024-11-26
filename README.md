@@ -72,6 +72,8 @@ you can change the domain name by environment variable as below:
 
 *Scripted:* This step is in `./step00-install-reqs.sh` and `./step01-check-params.sh`.
 The scripts expect you to define the environment variables in `bluesky-params.env`.
+You can also override this by setting the environment variable `params_file` to point to a different `.env` file
+(useful for if you are doing multiple brandings or want to keep in a separate git repo).
 Copy `bluesky-params.env.example` to start off.
 
 ```bash

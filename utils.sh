@@ -12,7 +12,6 @@ blue_color=$(printf '\e[1;34m')
 purple_color=$(printf '\e[1;35m')
 reset_color=$(printf '\e[1;0m')
 
-params_file="$script_dir/bluesky-params.env"
 
 function show_heading {
   echo
@@ -65,4 +64,11 @@ function wait_for_container {
     done
   show_success
 }
+
+if [ "$params_file" != "" ]
+  then
+    show_info "Custom Parameters File" "using environment variable: $params_file"
+  else
+    params_file="$script_dir/bluesky-params.env"
+  fi
 
