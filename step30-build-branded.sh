@@ -34,15 +34,39 @@ elif [ "$REBRANDING_SCRIPT" == "" ]
     echo "https://github.com/bluesky-social/social-app?tab=readme-ov-file#forking-guidelines"
     exit 1
   else
-    show_heading "Rebranding social-app" "by scripted changes"
+    if [ "$REBRANDED_REPOS" == "" ]
+      then
+        show_error "REBRANDED_REPOS undefined:" "please adjust your .env file"
+        exit 1
+      fi
+    show_heading "Rebranding repos: $REBRANDED_REPOS" "by scripted changes"
     REBRANDING_SCRIPT_ABS="`realpath "$REBRANDING_SCRIPT"`"
     [ "$REBRANDING_NAME" == "" ] && { show_error "Brand name undefined:" "please set REBRANDING_NAME in $params_file" ; exit 1 ; }
-    (
-      cd "$script_dir/repos/social-app"
-      $script_dir/autobranch.sh -C local-rebranding-$REBRANDING_NAME work dockerbuild
-      "$REBRANDING_SCRIPT_ABS" $REBRANDING_NAME
-      git commit -a -m "Automatic rebranding to $REBRANDING_NAME"
-    )
+    for branded_repo in $REBRANDED_REPOS
+      do
+        (
+          cd "$script_dir/repos/$branded_repo"
+          show_info "Branching $branded_repo" "before applying branding changes"
+          $script_dir/autobranch.sh -C local-rebranding-$REBRANDING_NAME work dockerbuild
+        )
+      done
+    show_info "Rebranding for $REBRANDING_NAME" "by scripted changes"
+    "$REBRANDING_SCRIPT_ABS" $REBRANDING_NAME
+    for branded_repo in $REBRANDED_REPOS
+      do
+        (
+          cd "$script_dir/repos/$branded_repo"
+          git diff --exit-code --stat && { show_warning "no changes to $branded_repo:" "check if branding config is correct" ; exit 0 ; }
+          show_info "Committing branding changes" "to $branded_repo"
+          git commit -a -m "Automatic rebranding to $REBRANDING_NAME" || {
+            show_error "Error auto-committing branding changes:" "retrying with git hooks disabled, but you may want to review the above errors"
+            git commit --no-verify -a -m "Automatic rebranding to $REBRANDING_NAME (hooks disabled due to error)" || {
+              show_error "Error auto-committing branding changes:" "even when git hooks disabled; please correct in $repoDir"
+              exit 1
+            }
+          }
+        )
+      done
   fi
 
 show_heading "Patching each repository" "with changes required for docker build"
@@ -54,6 +78,10 @@ make patch-dockerbuild
 show_heading "Building social-app" "customized for domain $DOMAIN"
 # 1) build social-app image, customized for domain
 make build f=./docker-compose-builder.yaml services=social-app
+
+show_heading "Building pds" "customized for domain $DOMAIN"
+# 1) build social-app image, customized for domain
+make build f=./docker-compose-builder.yaml services=pds
 
 # show_heading "Building other images" "without domain customization"
 # 2) build images with original

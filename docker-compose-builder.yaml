@@ -228,7 +228,8 @@ services:
       - caddy
       
   pds:
-    image: itaru2622/bluesky-atproto-pds:${asof}
+    # image: itaru2622/bluesky-atproto-pds:${asof}
+    image: itaru2622/bluesky-atproto-pds:${asof}${DOMAIN}
     build:
       context: ./repos/atproto/
       dockerfile: services/pds/Dockerfile
