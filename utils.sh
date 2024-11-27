@@ -68,6 +68,7 @@ function wait_for_container {
 if [ "$params_file" != "" ]
   then
     show_info "Custom Parameters File" "using environment variable: $params_file"
+    params_file="`realpath "$params_file"`"
   else
     params_file="$script_dir/bluesky-params.env"
   fi

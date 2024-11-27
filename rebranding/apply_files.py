@@ -122,7 +122,7 @@ if __name__ == '__main__':
         config = yaml.safe_load(config_file)
     env = {}
     for env_file in args.env_file:
-        env.update(read_env(args.env_file))
+        env.update(read_env(env_file))
     copy_files(config.get('copy_files', []), env, dry_run=args.dry_run)
     replace_svg_in_html_files(config.get('svg_html_subst', []), env, dry_run=args.dry_run)
     replace_svg_in_tsx_files(config.get('svg_tsx_subst', []), env, dry_run=args.dry_run)

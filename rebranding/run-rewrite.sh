@@ -35,10 +35,10 @@ BRAND_IMAGES_FILE="`basename "$BRAND_IMAGES_DIR"`-branding.svg"
 BRAND_CONFIG_DIR="`cd "$BRAND_CONFIG_DIR" ; pwd`"
 BRAND_IMAGES_DIR="`cd "$BRAND_IMAGES_DIR" ; pwd`"
 BRAND_TMP_ENV_FILE="`mktemp --suffix=.env`"
-echo "BRAND_CONFIG_DIR=\"${BRAND_CONFIG_DIR}\"" >> "$BRAND_TMP_ENV_FILE" 
-echo "BRAND_IMAGES_DIR=\"${BRAND_IMAGES_DIR}\"" >> "$BRAND_TMP_ENV_FILE" 
+echo "BRAND_CONFIG_DIR=${BRAND_CONFIG_DIR}" >> "$BRAND_TMP_ENV_FILE" 
+echo "BRAND_IMAGES_DIR=${BRAND_IMAGES_DIR}" >> "$BRAND_TMP_ENV_FILE" 
 
-[ -f bluesky-params.env ] && { set -a ; . $script_dir/bluesky-params.env ; set +a ; }
+[ -f "$params_file" ] && { set -a ; . "$params_file" ; set +a ; }
 
 python $script_dir/export-brand-images.py $BRAND_IMAGES_DIR/$BRAND_IMAGES_FILE || { show_error "Error exporting images" "from $BRAND_IMAGES_DIR" ; exit 1 ; }
 
@@ -54,7 +54,7 @@ python $script_dir/export-brand-images.py $BRAND_IMAGES_DIR/$BRAND_IMAGES_FILE |
     git reset --hard
     semgrep scan --config ${BRAND_CONFIG_DIR}/social-app.yml -a || { echo error running semgrep >&2 ; exit 1 ; }
     cp google-services.json.example google-services.json
-    python ${script_dir}/apply_files.py --config "$BRAND_CONFIG_DIR"/social-app.yml --env-file "$script_dir"/bluesky-params.env --env-file "$BRAND_TMP_ENV_FILE" || { echo error running apply-files >&2 ; exit 1 ; }
+    python ${script_dir}/apply_files.py --config "$BRAND_CONFIG_DIR"/social-app.yml --env-file "$params_file" --env-file "$BRAND_TMP_ENV_FILE" || { echo error running apply-files >&2 ; exit 1 ; }
     echo "app_name=${brand}" > branding.env
 )
 
