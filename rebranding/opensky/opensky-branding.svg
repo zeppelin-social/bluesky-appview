@@ -32,7 +32,7 @@
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="Logotype" />
+     inkscape:current-layer="layer1" />
   <defs
      id="defs1">
     <linearGradient
@@ -275,13 +275,6 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(682.625)">
-    <use
-       x="0"
-       y="0"
-       xlink:href="#black-logo"
-       id="email_mark_dark"
-       inkscape:label="pathEmailMarkDark"
-       transform="matrix(0.26364514,0,0,0.26364514,660.37268,368.01313)" />
     <rect
        style="fill:url(#linearGradient1);fill-opacity:1;stroke:none;stroke-width:1.5875;stroke-miterlimit:3.8636;stroke-dasharray:none;stroke-opacity:1"
        id="splash-dark"
@@ -360,6 +353,25 @@
            style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:204.978px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed,  Medium';letter-spacing:-10px;fill:url(#linearGradient2);fill-opacity:1;stroke:#ffffff;stroke-width:3;stroke-dasharray:none;stroke-opacity:1"><tspan
    style="fill:url(#linearGradient2);fill-opacity:1"
    id="tspan32">open</tspan>sky</tspan></text>
+    </g>
+    <g
+       id="safari-pinned-tab"
+       inkscape:label="gSafariPinnedTab"
+       transform="matrix(0.26458333,0,0,0.26458333,-169.60202,-91.775707)">
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:19.2396;stroke-dasharray:none;stroke-opacity:1"
+         d="m 1868.8307,1214.7036 c -65.0465,-20.3388 -82.7491,-108.4507 -31.9875,-159.2123 15.5521,-15.5521 38.9803,-27.2297 63.8174,-31.809 l 17.7296,-3.2689 1.7382,-15.6065 c 3.3926,-30.46046 21.4353,-55.53252 50.0616,-69.56556 20.3848,-9.99294 49.3955,-10.55135 70.2038,-1.35135 l 13.4554,5.94905 14.6,-15.76984 c 24.5787,-26.54791 63.5196,-41.70054 97.358,-37.8838 19.4153,2.1899 40.5783,9.61553 54.2775,19.04475 14.4525,9.94768 34.4089,31.43779 39.9134,42.98075 4.3406,9.10264 4.5214,9.18206 21.3444,9.38067 40.4463,0.47752 72.8995,24.72214 84.2536,62.94243 2.0823,7.01 3.7862,16.4198 3.7862,20.9108 0,7.7652 0.6803,8.3175 13.8843,11.2724 38.3636,8.5855 62.1961,41.1927 61.9895,84.8134 -0.1699,35.8944 -21.7488,65.5131 -55.3488,75.9706 -15.1057,4.7015 -26.9285,4.9149 -263.0504,4.7498 -195.7912,-0.1369 -249.4795,-0.875 -258.0262,-3.5474 z"
+         id="black-logo-7"
+         sodipodi:nodetypes="ssscssscssssssssssss"
+         inkscape:label="pathCloudOutline" />
+      <rect
+         style="fill:none;stroke-width:0;stroke-miterlimit:3.8636;stroke-dasharray:none"
+         id="safari-pinned-tab-size"
+         width="682.66199"
+         height="682.66199"
+         x="1785.0154"
+         y="710.61334"
+         inkscape:label="rectSafariPinnedTabSize" />
     </g>
     <path
        style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:16.4755;stroke-dasharray:none;stroke-opacity:1"
@@ -445,6 +457,13 @@
        x="0"
        y="0"
        xlink:href="#g18"
+       id="favicon-16x16"
+       inkscape:label="gFavicon16"
+       transform="matrix(0.11111111,0,0,0.11111111,223.73167,295.13895)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g18"
        id="favicon-32x32"
        inkscape:label="gFavicon32"
        transform="matrix(0.22222222,0,0,0.22222222,189.22999,258.24658)" />
@@ -483,32 +502,6 @@
          sodipodi:nodetypes="ssscssscssssssssssss"
          inkscape:label="pathBlackLogo"
          transform="matrix(0.64473988,0,0,0.64473988,1575.4969,535.36101)" />
-    </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#g18"
-       id="favicon-16x16"
-       inkscape:label="gFavicon16"
-       transform="matrix(0.11111111,0,0,0.11111111,223.73166,295.13894)" />
-    <g
-       id="safari-pinned-tab"
-       inkscape:label="gSafariPinnedTab"
-       transform="matrix(0.26458333,0,0,0.26458333,-169.60201,-91.775706)">
-      <path
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:19.2396;stroke-dasharray:none;stroke-opacity:1"
-         d="m 1868.8307,1214.7036 c -65.0465,-20.3388 -82.7491,-108.4507 -31.9875,-159.2123 15.5521,-15.5521 38.9803,-27.2297 63.8174,-31.809 l 17.7296,-3.2689 1.7382,-15.6065 c 3.3926,-30.46046 21.4353,-55.53252 50.0616,-69.56556 20.3848,-9.99294 49.3955,-10.55135 70.2038,-1.35135 l 13.4554,5.94905 14.6,-15.76984 c 24.5787,-26.54791 63.5196,-41.70054 97.358,-37.8838 19.4153,2.1899 40.5783,9.61553 54.2775,19.04475 14.4525,9.94768 34.4089,31.43779 39.9134,42.98075 4.3406,9.10264 4.5214,9.18206 21.3444,9.38067 40.4463,0.47752 72.8995,24.72214 84.2536,62.94243 2.0823,7.01 3.7862,16.4198 3.7862,20.9108 0,7.7652 0.6803,8.3175 13.8843,11.2724 38.3636,8.5855 62.1961,41.1927 61.9895,84.8134 -0.1699,35.8944 -21.7488,65.5131 -55.3488,75.9706 -15.1057,4.7015 -26.9285,4.9149 -263.0504,4.7498 -195.7912,-0.1369 -249.4795,-0.875 -258.0262,-3.5474 z"
-         id="black-logo-7"
-         sodipodi:nodetypes="ssscssscssssssssssss"
-         inkscape:label="pathCloudOutline" />
-      <rect
-         style="fill:none;stroke-width:0;stroke-miterlimit:3.8636;stroke-dasharray:none"
-         id="safari-pinned-tab-size"
-         width="682.66199"
-         height="682.66199"
-         x="1785.0154"
-         y="710.61334"
-         inkscape:label="rectSafariPinnedTabSize" />
     </g>
     <g
        id="social-card-default"
@@ -588,7 +581,7 @@
       </g>
     </g>
     <g
-       id="email_default_logo"
+       id="email_logo_default"
        inkscape:label="gEmailLogoDefault"
        transform="matrix(0.25377939,0,0,0.25377939,-32.359143,380.98118)">
       <use
@@ -604,11 +597,18 @@
          id="email-default-logo-logotype"
          inkscape:label="gEmailDefaultLogoLogotype" />
     </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#black-logo"
+       id="email_mark_dark"
+       inkscape:label="pathEmailMarkDark"
+       transform="matrix(0.26364514,0,0,0.26364514,660.37267,368.01314)" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.14927;stroke-dasharray:none;stroke-opacity:1"
        d="m 825.46323,470.64402 c -3.88552,-1.21492 -4.94298,-6.47825 -1.91076,-9.51047 0.929,-0.929 2.32847,-1.62655 3.8121,-1.90009 l 1.05907,-0.19527 0.10383,-0.93225 c 0.20266,-1.81954 1.28043,-3.31721 2.99041,-4.15547 1.21767,-0.59691 2.95062,-0.63027 4.19359,-0.0807 l 0.80375,0.35537 0.87212,-0.942 c 1.4682,-1.58583 3.79432,-2.49097 5.81564,-2.26298 1.15977,0.13082 2.42393,0.57438 3.24224,1.13763 0.86331,0.59422 2.0554,1.87792 2.38421,2.56744 0.25929,0.54374 0.27008,0.54848 1.275,0.56035 2.41603,0.0285 4.35461,1.47676 5.03284,3.75984 0.12439,0.41874 0.22617,0.98082 0.22617,1.24908 0,0.46386 0.0406,0.49686 0.82938,0.67337 2.29162,0.51284 3.71525,2.46062 3.70291,5.06629 -0.0101,2.14413 -1.29915,3.91339 -3.30624,4.53806 -0.90233,0.28084 -1.60856,0.29359 -15.71319,0.28373 -11.6955,-0.008 -14.90254,-0.0523 -15.41307,-0.21191 z"
-       id="use4"
+       id="email_mark_light"
        sodipodi:nodetypes="ssscssscssssssssssss"
-       inkscape:label="pathLogo" />
+       inkscape:label="pathEmailMarkLight" />
   </g>
 </svg>
