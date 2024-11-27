@@ -8,7 +8,7 @@ Ideally, the source tree should support the domain names changing based on envir
 Rebranding is done using:
 - semgrep to alter source code and configuration
 - comby.dev to replace svg content in tsx files
-- inkscape to extract images from SVG source graphic files
+- inkscape (in command-line form) to extract images from SVG source graphic files
 - python for some management and processing
 
 Installation
@@ -17,14 +17,9 @@ Installation
 - install semgrep
 - install comby.dev
 - install python
+- install inkscape
 - create a python virtual environment in venv and activate
 - pip install -r requirements.txt
-
-Inkscape
---------
-
-This uses command-line scripting of inkscape to export the graphics.
-It also uses Python to simplify exported SVG where that is needed.
 
 Structure
 =========
@@ -33,7 +28,7 @@ It's possible to support multiple different rebranding configurations, with a di
 Each repo that needs to be patched has a separate .yml file which governs the patching.
 The .yml files follow semgrep syntax, with some additions for image processing
 
-The graphics rebranding is stored in a separate directory, since it is somewhat independ of domain names
+The graphics rebranding is stored in a separate directory, since it is somewhat independent of domain names
 
 Opensky
 -------
@@ -44,11 +39,6 @@ To use this, copy the `.yml` files to an appropriate directory and adjust the do
 At present, it has a rebranding configuration for the social-app which presents the frontend for Bluesky,
 and for atproto because the pds package sends out some emails which need rebranding.
 
-Exporting Images
-================
-
-Run `opensky/export-brand-images.py` to generate the bitmap and smaller svg images from the main branding svg
-
 Running from Parent
 ===================
 
@@ -58,6 +48,11 @@ and set `REBRANDING_NAME` to match the name you chose to replace `opensky-local-
 
 Running Manually
 ================
+
+Exporting Images
+----------------
+
+Run `opensky/export-brand-images.py` to generate the bitmap and smaller svg images from the main branding svg
 
 Applying Branding Changes
 -------------------------
