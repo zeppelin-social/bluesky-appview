@@ -42,7 +42,7 @@ docker-start-nowatch::      setupdir ${wDir}/config/caddy/Caddyfile ${passfile}
 ifeq ($(EMAIL4CERTS),internal)
 docker-start-nowatch::      ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt
 endif
-docker-start-nowatch::      _applySdep _dockerup
+docker-start-nowatch::      _applySdep _dockerUp
 docker-start::      docker-watchlog
 docker-start-bsky:: docker-start-bsky-nowatch
 docker-start-bsky-nowatch:: _applySbsky _dockerUp
