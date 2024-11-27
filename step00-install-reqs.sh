@@ -5,14 +5,14 @@ script_dir="`dirname "$script_path"`"
 . "$script_dir/utils.sh"
 
 show_heading "Setting up apt packages" that are requirements for building running and testing these docker images
-if dpkg-query -l make pwgen
+if dpkg-query -l make pwgen jq
   then
     show_info "No install required:" all packages already installed
   else
     sudo apt update
     # make is used to run setup scripts etc
     # pwgen is used to generate new securish passwords
-    sudo apt install -y make pwgen
+    sudo apt install -y make pwgen jq
   fi
 
 show_heading "Setting up websocat" directly from executable download, in /usr/local/bin
