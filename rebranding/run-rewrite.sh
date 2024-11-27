@@ -56,7 +56,7 @@ python $script_dir/export-brand-images.py $BRAND_IMAGES_DIR/$BRAND_IMAGES_FILE |
     cp google-services.json.example google-services.json
     python ${script_dir}/apply_files.py --config "$BRAND_CONFIG_DIR"/social-app.yml --env-file "$params_file" --env-file "$BRAND_TMP_ENV_FILE" || { echo error running apply-files >&2 ; exit 1 ; }
     echo "app_name=${brand}" > branding.env
-)
+) || { show_error "Patching social-app failed:" "examine above error messages and correct" ; exit 1 ; }
 
 (
     [ -f "${BRAND_CONFIG_DIR}/atproto.yml" ] || { echo could not find ${BRAND_CONFIG_DIR}/atproto.yml >&2 ; exit 1 ; }
@@ -65,7 +65,7 @@ python $script_dir/export-brand-images.py $BRAND_IMAGES_DIR/$BRAND_IMAGES_FILE |
     echo patching atproto in `pwd` with ${brand}
     git reset --hard
     semgrep scan --config "$BRAND_CONFIG_DIR"/atproto.yml -a || { echo error running semgrep >&2 ; exit 1 ; }
-)
+) || { show_error "Patching atproto failed:" "examine above error messages and correct" ; exit 1 ; }
 
 (
     cd "$social_app_dir"

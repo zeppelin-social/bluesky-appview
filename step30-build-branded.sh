@@ -51,7 +51,7 @@ elif [ "$REBRANDING_SCRIPT" == "" ]
         )
       done
     show_info "Rebranding for $REBRANDING_NAME" "by scripted changes"
-    "$REBRANDING_SCRIPT_ABS" $REBRANDING_PARAMS
+    "$REBRANDING_SCRIPT_ABS" $REBRANDING_PARAMS || { show_error "Rebranding script error:" "Please examine and correct before continuing; ran $REBRANDING_SCRIPT_ABS $REBRANDING_PARAMS" ; exit 1 ; }
     for branded_repo in $REBRANDED_REPOS
       do
         (

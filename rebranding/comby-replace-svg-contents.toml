@@ -1,0 +1,16 @@
+[svg-contents-start]
+match='<:[tag~Svg\b]:[attrs]>'
+rewrite='<:[tag]:[attrs]>@SVG_INNER_START@'
+
+[svg-contents-end]
+match='</:[tag~Svg]>'
+rewrite='@SVG_INNER_END@</:[tag]>'
+
+[svg-only-import-change]
+match="import Svg from ':[import_prefix]react-native-svg'"
+rewrite="import Svg, {@SVG_TAGS@} from ':[import_prefix]react-native-svg'"
+
+[svg-import-change]
+match="import Svg, {:[svg_objects]:[~,?\n?]} from ':[import_prefix]react-native-svg'"
+rewrite="import Svg, {:[svg_objects], @SVG_TAGS@} from ':[import_prefix]react-native-svg'"
+
