@@ -25,7 +25,7 @@ def style_to_attribs(stylestr):
     stylestr_parts = stylestr.split(';') if stylestr else []
     key_value_pairs = [style_attrib.split(':', 1) if ':' in style_attrib else (style_attrib, '') for style_attrib in stylestr_parts]
     key_value_pairs = [(key, value[1:-1] if value.startswith("'") and value.endswith("'") else value) for key, value in key_value_pairs]
-    key_value_pairs = [(hyphen_to_camelcase(key), value) for key, value in key_value_pairs if not key.startswith('-inkscape')]
+    key_value_pairs = [(hyphen_to_camelcase(key), value) for key, value in key_value_pairs if key and not key.startswith('-inkscape')]
     return ' '.join(f'{key}="{value}"' for key, value in key_value_pairs)
 
 def svg_to_tsx(src):
