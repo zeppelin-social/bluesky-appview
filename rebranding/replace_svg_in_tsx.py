@@ -13,7 +13,7 @@ def get_svg_inner(src):
     # this could be done with more finesse
     return src[src.find(">")+1:src.rfind("<")]
 
-tag_initial = re.compile("[<]/?[a-z][a-z]*")
+tag_initial = re.compile("[<]/?[a-z][a-zA-Z]*")
 svg_inner_block = re.compile("@SVG_INNER_START@.*@SVG_INNER_END@", re.DOTALL)
 style_re = re.compile('style="[^"]*"')
 xlink_attr_re = re.compile('xlink:[a-z]*=')
