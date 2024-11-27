@@ -139,7 +139,7 @@ make installCAcert
 # don't forget to install certificate to browser.
 ```
 
-*Scripted:* You can automate this with `./step11-setup-self-signed-cert.sh`, but will need to install to the browser manually.
+*Scripted:* You can automate this with `./step11-setup-certs.sh`, but will need to install to the browser manually.
 If you don't set `EMAIL4CERTS` to `internal` in your environment file, this script won't create certificates and the later steps will do a Let's Encrypt setup.
 
 ### <a id="ops2-check"/>2) check if it's ready to self-host bluesky
