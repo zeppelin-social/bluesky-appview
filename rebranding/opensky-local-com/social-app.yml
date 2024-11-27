@@ -25,6 +25,9 @@ rules:
   languages:
     - generic
   severity: WARNING
+  paths:
+    exclude:
+      - 'src/state/geolocation.tsx' # this is calling the ip-country-code service at /ipcc which we don't run separately
 
 - id: relay-domain
   patterns:
