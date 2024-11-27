@@ -38,7 +38,11 @@ build:
 	DOMAIN=${DOMAIN} asof=${asof} ${dockerCompose} -f ${f} build ${services}
 
 docker-start::      docker-start-nowatch
-docker-start-nowatch::      setupdir ${wDir}/config/caddy/Caddyfile ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt ${passfile} _applySdep _dockerUp
+docker-start-nowatch::      setupdir ${wDir}/config/caddy/Caddyfile ${passfile}
+ifeq ($(EMAIL4CERTS),internal)
+docker-start-nowatch::      ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt
+endif
+docker-start-nowatch::      _applySdep _dockerup
 docker-start::      docker-watchlog
 docker-start-bsky:: docker-start-bsky-nowatch
 docker-start-bsky-nowatch:: _applySbsky _dockerUp
@@ -68,7 +72,7 @@ docker-stop-with-clean:
 	docker volume  prune -f
 	docker system  prune -f
 	docker network rm -f ${docker_network}
-	sudo rm -rf ${dDir}
+	rm -rf ${dDir}
 
 docker-watchlog:
 	-${dockerCompose} -f ${f} logs -f || true
