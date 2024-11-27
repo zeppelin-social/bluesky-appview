@@ -5,13 +5,23 @@ script_dir="`dirname "$script_path"`"
 . "$script_dir/utils.sh"
 
 show_heading "Setting up apt packages" that are requirements for building running and testing these docker images
-sudo apt update
-# make is used to run setup scripts etc
-# pwgen is used to generate new securish passwords
-sudo apt install -y make pwgen
+if dpkg-query -l make pwgen
+  then
+    show_info "No install required:" all packages already installed
+  else
+    sudo apt update
+    # make is used to run setup scripts etc
+    # pwgen is used to generate new securish passwords
+    sudo apt install -y make pwgen
+  fi
 
 show_heading "Setting up websocat" directly from executable download, in /usr/local/bin
-(sudo curl -o /usr/local/bin/websocat -L https://github.com/vi/websocat/releases/download/v1.13.0/websocat.x86_64-unknown-linux-musl; sudo chmod a+x /usr/local/bin/websocat)
+if [ -x /usr/local/bin/websocat ] && websocat --version
+  then
+    show_info "No install required:" websocat already present
+  else
+    (sudo curl -o /usr/local/bin/websocat -L https://github.com/vi/websocat/releases/download/v1.13.0/websocat.x86_64-unknown-linux-musl; sudo chmod a+x /usr/local/bin/websocat)
+  fi
 
 show_heading "Setting up nvm" and node
 # installing nvm and node
