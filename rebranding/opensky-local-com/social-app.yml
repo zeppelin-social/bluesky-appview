@@ -218,58 +218,10 @@ rules:
 - id: background-color
   patterns:
     - pattern: "#1185FE"
-  fix: "#E88627"
+  fix: "#6A87A5"
   message: Background theme colour
   languages:
     - generic
-  severity: WARNING
-
-- id: style-color-names
-  patterns:
-    - pattern: "unreadNotifBg"
-  fix: "  orange1: '#e88627',\norange2: '#d04304',\n\nunreadNotifBg"
-  message: Add in orange style colours
-  languages:
-    - generic
-  paths:
-    include:
-      - src/lib/styles.ts
-  severity: WARNING
-
-- id: style-color-usage-1
-  patterns:
-    - pattern: "colors.blue3"
-  fix: "colors.orange1"
-  message: replace blue with orange colours
-  languages:
-    - typescript
-  severity: WARNING
-
-- id: style-color-usage-2
-  patterns:
-    - pattern: "colors.blue2"
-  fix: "colors.orange2"
-  message: replace blue with orange colours
-  languages:
-    - typescript
-  severity: WARNING
-
-- id: style-color-usage-3
-  patterns:
-    - pattern: "colors.blue0"
-  fix: "colors.orange2"
-  message: replace blue with orange colours
-  languages:
-    - typescript
-  severity: WARNING
-
-- id: style-color-usage-4
-  patterns:
-    - pattern: "colors.blue4"
-  fix: "colors.orange1"
-  message: replace blue with orange colours
-  languages:
-    - typescript
   severity: WARNING
 
 - id: million-users
