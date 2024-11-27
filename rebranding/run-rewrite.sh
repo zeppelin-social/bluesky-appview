@@ -4,8 +4,7 @@ script_path="`realpath "$0"`"
 script_dir="`dirname "$script_path"`"
 BRAND_CONFIG_DIR="$1"
 BRAND_IMAGES_DIR="$2"
-cd "$script_dir"
-. ../utils.sh
+. $script_dir/../utils.sh
 
 function usage() {
     echo syntax "$0" brand_config_dir brand_images_dir >&2
@@ -19,6 +18,21 @@ function usage() {
     usage
     exit 1
 }
+[ ! -d "$BRAND_CONFIG_DIR" ] && {
+    show_error "Directory not found" "brand_config_dir: $BRAND_CONFIG_DIR"
+    usage
+    exit 1
+}
+[ ! -d "$BRAND_IMAGES_DIR" ] && {
+    show_error "Directory not found" "brand_images_dir: $BRAND_IMAGES_DIR"
+    usage
+    exit 1
+}
+
+BRAND_CONFIG_DIR="`cd "$BRAND_CONFIG_DIR" ; pwd`"
+BRAND_IMAGES_DIR="`cd "$BRAND_IMAGES_DIR" ; pwd`"
+
+cd "$script_dir"
 
 [ -f "$BRAND_CONFIG_DIR"/social-app.yml ] || {
     show_error "Brand config not found" "in directory $BRAND_CONFIG_DIR"
@@ -32,8 +46,6 @@ BRAND_IMAGES_FILE="`basename "$BRAND_IMAGES_DIR"`-branding.svg"
     exit 1
 }
 
-BRAND_CONFIG_DIR="`cd "$BRAND_CONFIG_DIR" ; pwd`"
-BRAND_IMAGES_DIR="`cd "$BRAND_IMAGES_DIR" ; pwd`"
 BRAND_TMP_ENV_FILE="`mktemp --suffix=.env`"
 echo "BRAND_CONFIG_DIR=${BRAND_CONFIG_DIR}" >> "$BRAND_TMP_ENV_FILE" 
 echo "BRAND_IMAGES_DIR=${BRAND_IMAGES_DIR}" >> "$BRAND_TMP_ENV_FILE" 

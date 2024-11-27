@@ -69,7 +69,17 @@ if [ "$params_file" != "" ]
   then
     show_info "Custom Parameters File" "using environment variable: $params_file"
     params_file="`realpath "$params_file"`"
+elif [ "`basename "$script_dir"`" == "rebranding" ]
+  then
+    params_file="`realpath "$script_dir/../bluesky-params.env"`"
   else
     params_file="$script_dir/bluesky-params.env"
   fi
+
+# this will quit the calling script
+[ -f "$params_file" ] || {
+  show_error "Params file not found:" "$params_file"
+  show_info "Please supply one:" "set params_file to point to the filename if not bluesky-params.env; use bluesky-params.env.example as template. See README.md for further info"
+  exit 1
+}
 
