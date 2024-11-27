@@ -16,6 +16,7 @@ def get_svg_inner(src):
 tag_initial = re.compile("[<]/?[a-z][a-z]*")
 svg_inner_block = re.compile("@SVG_INNER_START@.*@SVG_INNER_END@", re.DOTALL)
 style_re = re.compile('style="[^"]*"')
+xlink_attr_re = re.compile('xlink:[a-z]*=')
 
 def hyphen_to_camelcase(key):
     key_parts = key.split('-')
@@ -38,6 +39,10 @@ def svg_to_tsx(src):
     for stylestr in stylestrs:
         new_styles = style_to_attribs(stylestr[7:-1])
         src = src.replace(stylestr, new_styles)
+    xap = len('xlink:')
+    for xlink_attr in set(xlink_attr_re.findall(src)):
+        new_xlink_attr = 'xlink' + xlink_attr[xap:xap+1].upper() + xlink_attr[xap+1:]
+        src = src.replace(xlink_attr, new_xlink_attr)
     return src, [tag[1:2].upper() + tag[2:] for tag in tags if '/' not in tag]
 
 def adjust_svg_and_import(src, svg, config_file=replace_svg_contents_config):
