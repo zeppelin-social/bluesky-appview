@@ -245,7 +245,7 @@ rules:
 - id: whats-cooking
   patterns:
     - pattern: "What's up"
-  fix: "What's cooking"
+  fix: "What's going down"
   message: Adjust the slogan
   languages:
     - generic
