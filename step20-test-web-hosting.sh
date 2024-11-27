@@ -10,12 +10,15 @@ set +o allexport
 
 show_heading "Starting test web containers" "to check caddy configuration"
 
-# make docker-start-nowatch f=./docker-compose-debug-caddy.yaml services=
+make docker-start-nowatch f=./docker-compose-debug-caddy.yaml services=
 
-show_heading "Artificial delay" "to allow letsencrypt to work"
-sleep 10
 show_heading "Wait for startup" "of test web containers"
 wait_for_container caddy
+if [ "$EMAIL4CERT" != "internal" ]
+  then
+    show_heading "Artificial delay" "to allow letsencrypt to work"
+    sleep 20
+  fi
 
 show_heading "Checking test web containers"
 
