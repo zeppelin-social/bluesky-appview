@@ -39,6 +39,27 @@ To use this, copy the `.yml` files to an appropriate directory and adjust the do
 At present, it has a rebranding configuration for the social-app which presents the frontend for Bluesky,
 and for atproto because the pds package sends out some emails which need rebranding.
 
+Creating a Rebranding
+=====================
+
+Image Branding
+--------------
+
+It's easiest to start from the example in `opensky/opensky-branding.svg`.
+The tool expects an SVG image that has separate IDs for each target image that will be exported (by `./export-brand-images.py`)
+These IDs can be individual objects or groups; to create margin around something add a group with a transparent rectangle.
+The objects with the export IDs should be sized appropriately for the target image.
+
+Note that sometimes it's necessary to adjust the viewport for the SVG images imported into TSX; this can be done in the config below.
+This is what you need to do if images come out the wrong size.
+
+Configuration for domains, ids and names
+----------------------------------------
+
+It's easiest to start from the example in `opensky-local-com/*.yml`.
+Copy this to an appropriate directory, then do a search and replace on the DOMAIN and brand names.
+Then review the details and see what needs adjusting.
+
 Running from Parent
 ===================
 
