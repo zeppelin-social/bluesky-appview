@@ -290,14 +290,14 @@ svg_html_subst:
   file_substs:
     - src: "logo.compact.svg"
       dest: "index.html"
-      view_box: "0 0 512 512"
+      view_box: "0 0 128 128"
 
 - src_dir: "${BRAND_IMAGES_DIR}/generated/"
   dest_dir: "bskyweb/templates/"
   file_substs:
     - src: "logo.compact.svg"
       dest: "base.html"
-      view_box: "0 0 512 512"
+      view_box: "0 0 128 128"
 
 svg_tsx_subst:
 - src_dir: "${BRAND_IMAGES_DIR}/generated/"
@@ -305,7 +305,7 @@ svg_tsx_subst:
   file_substs:
     - src: "logo.compact.svg"
       dest: "Logo.tsx"
-      view_box: "0 0 512 512"
+      view_box: "0 0 128 128"
       pre_replace:
         - find: '\bfill:[^;]*;'
           replace: 'fill:{_fill};'
@@ -314,7 +314,7 @@ svg_tsx_subst:
           replace: 'fill={\1}'
     - src: "logo.compact.svg"
       dest: "Logomark.tsx"
-      view_box: "0 0 512 512"
+      view_box: "0 0 128 128"
       pre_replace:
         - find: '\bfill:[^;]*;'
           replace: 'fill:{fill || pal.text.color};'
@@ -323,7 +323,7 @@ svg_tsx_subst:
           replace: 'fill={\1}'
     - src: "Logotype.compact.svg"
       dest: "Logotype.tsx"
-      view_box: "0 0 700 190"
+      view_box: "0 0 210 57"
       pre_replace:
         - find: '\bfill:[^;]*;'
           replace: 'fill:{fill || pal.text.color};'
@@ -336,7 +336,7 @@ svg_tsx_subst:
   file_substs:
     - src: "logo.compact.svg"
       dest: "Splash.tsx"
-      view_box: "0 0 512 512"
+      view_box: "0 0 128 128"
 
 # note that src/components/icons/TEMPLATE.tsx has a globe icon in it, doesn't need replacing
 
