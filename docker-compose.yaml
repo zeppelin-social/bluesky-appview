@@ -263,6 +263,8 @@ services:
       - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/carstore
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bgs
       - DATA_DIR=/data/bigsky
+      - RELAY_PERSISTER_DIR=/data/bigsky/persister
+      - RELAY_EVENT_PLAYBACK_TTL=120h # 5 days
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
 #     - GODEBUG=netdns=go+4
@@ -273,6 +275,8 @@ services:
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
       - RELAY_NEWPDS_PERDAY_LIMIT=10000
+      - RELAY_NON_ARCHIVAL=true
+      - RELAY_SPIDERING=true
     volumes:
       # supporting self-signed certificates, easiest way >>>>
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
