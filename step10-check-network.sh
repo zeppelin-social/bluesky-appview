@@ -29,8 +29,8 @@ function check_dns_maps_to_here() {
     fi
 }
 
-check_dns_maps_to_here "$DOMAIN"|| { show_error "Main Domain DNS is not configured:" "you will need to set this up yourself" ; exit 1 ; }
+check_dns_maps_to_here "${DOMAIN}"|| { show_error "Main Domain DNS is not configured:" "you will need to set this up yourself" ; exit 1 ; }
 # this is to check there really is a wildcard domain configured
-check_dns_maps_to_here "random-`pwgen 4`.$DOMAIN" || { show_error "Wildcard DNS is not configured:" "you will need to set this up yourself" ; exit 1 ; }
+check_dns_maps_to_here "random-`pwgen 4`.${DOMAIN}" || { show_error "Wildcard DNS is not configured:" "you will need to set this up yourself" ; exit 1 ; }
 
 
