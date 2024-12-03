@@ -23,6 +23,7 @@ publicApiFQDN=${publicApiFQDN} \
 socialappFQDN=${socialappFQDN} \
 docker_network=${docker_network} \
 asof=${asof} \
+branded_asof=${branded_asof} \
 dDir=${dDir} \
 rDir=${rDir} \
 GOINSECURE=${GOINSECURE} \
@@ -45,11 +46,11 @@ PDS_INVITE_REQUIRED=${PDS_INVITE_REQUIRED} \
 _dockerUP_network:
 	-docker network create ${docker_network}
 docker-pull:
-	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull
+	DOMAIN= asof=${asof} branded_asof=${branded_asof} ${dockerCompose} -f ${f} pull
 docker-pull-unbranded:
-	DOMAIN= asof=${asof} ${dockerCompose} -f ${f} pull ${unbranded_services}
+	DOMAIN= asof=${asof} branded_asof=${branded_asof} ${dockerCompose} -f ${f} pull ${unbranded_services}
 build:
-	DOMAIN=${DOMAIN} asof=${asof} ${dockerCompose} -f ${f} build ${services}
+	DOMAIN=${DOMAIN} asof=${asof} branded_asof=${branded_asof} ${dockerCompose} -f ${f} build ${services}
 
 docker-start::      docker-start-nowatch
 docker-start-nowatch::      setupdir ${wDir}/config/caddy/Caddyfile ${passfile}
@@ -73,11 +74,11 @@ docker-start-bsky-jetstream:: docker-watchlog
 
 # execute publishFeed on feed-generator
 publishFeed:
-	DOMAIN=${DOMAIN} asof=${asof} docker_network=${docker_network} ${dockerCompose} -f ${f} exec feed-generator npm run publishFeed
+	DOMAIN=${DOMAIN} asof=${asof} branded_asof=${branded_asof} docker_network=${docker_network} ${dockerCompose} -f ${f} exec feed-generator npm run publishFeed
 
 # execute reload on caddy container
 reloadCaddy:
-	DOMAIN=${DOMAIN} asof=${asof} docker_network=${docker_network} ${dockerCompose} -f ${f} exec caddy caddy reload -c /etc/caddy/Caddyfile
+	DOMAIN=${DOMAIN} asof=${asof} branded_asof=${branded_asof} docker_network=${docker_network} ${dockerCompose} -f ${f} exec caddy caddy reload -c /etc/caddy/Caddyfile
 
 docker-stop:
 	${dockerCompose} -f ${f} down ${services}

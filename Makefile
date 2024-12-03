@@ -50,7 +50,7 @@ PDS_INVITE_REQUIRED ?= false
 asof ?=latest
 #asof ?=2024-04-03
 #asof ?=$(shell date +'%Y-%m-%d')
-
+branded_asof ?= ${asof}
 
 ifeq ($(EMAIL4CERTS), internal)
 GOINSECURE :=${DOMAIN},*.${DOMAIN}
@@ -236,6 +236,7 @@ echo:
 	@echo "SOCIAL_DOMAIN: ${SOCIAL_DOMAIN}"
 	@echo "PDS_DOMAIN:    ${PDS_DOMAIN}"
 	@echo "asof:          ${asof}"
+	@echo "branded_asof:  ${branded_asof}"
 	@echo ""
 	@echo "bgsFQDN       ${bgsFQDN}"
 	@echo "bskyFQDN      ${bskyFQDN}"

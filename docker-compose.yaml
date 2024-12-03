@@ -199,7 +199,7 @@ services:
 
   pds:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
-    image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}-${DOMAIN}
+    image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${branded_asof}-${DOMAIN}
     ports:
       - 2583:2583
     expose:
@@ -337,7 +337,7 @@ services:
 
   social-app:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
-    image: ${BRANDED_NAMESPACE}/bluesky-social-app:${asof}-${DOMAIN}
+    image: ${BRANDED_NAMESPACE}/bluesky-social-app:${branded_asof}-${DOMAIN}
     ports:
       - 8100:8100
     command: /usr/bin/bskyweb serve

@@ -229,7 +229,7 @@ services:
       
   pds:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
-    image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}-${DOMAIN}
+    image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${branded_asof}-${DOMAIN}
     build:
       context: ./repos/atproto/
       dockerfile: services/pds/Dockerfile
@@ -391,7 +391,7 @@ services:
 
   social-app:
     #image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
-    image: ${BRANDED_NAMESPACE}/bluesky-social-app:${asof}-${DOMAIN}
+    image: ${BRANDED_NAMESPACE}/bluesky-social-app:${branded_asof}-${DOMAIN}
     build:
       context: ./repos/social-app/
       dockerfile: Dockerfile
