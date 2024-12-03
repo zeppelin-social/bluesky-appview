@@ -4,6 +4,13 @@
 # domain of self-hosting bluesky (care TLD, otherwise get failure, ie: NG=>mysky.local)
 DOMAIN ?=mysky.local.com
 
+# FQDN to make internal services available on, where different from the default
+# This is, for example, to publish social-app on somewhere.app instead of social-app.somewhere.app
+# and pds on somewhere.social instead of pds.somewhere.app
+
+SOCIAL_DOMAIN ?= social-app.${DOMAIN}
+PDS_DOMAIN ?= pds.${DOMAIN}
+
 # FQDN of your self hosting bsky components.  DO NOT CHANGE THOSE, FOR USUAL CASES.
 # CHANGING THESE WITHOUT UNDERSTANDING WHAT YOU DOING, GETTING TROUBLES.
 # - these parameters aim to intergration test for your hosting env and official bluesky components, like fediverse.
@@ -16,10 +23,10 @@ feedgenFQDN   ?=feed-generator.${DOMAIN}
 jetstreamFQDN ?=jetstream.${DOMAIN}
 ozoneFQDN     ?=ozone.${DOMAIN}
 palomarFQDN   ?=palomar.${DOMAIN}
-pdsFQDN       ?=pds.${DOMAIN}
+pdsFQDN       ?=${PDS_DOMAIN}
 plcFQDN       ?=plc.${DOMAIN}
 publicApiFQDN ?=public.api.${DOMAIN}
-socialappFQDN ?=social-app.${DOMAIN}
+socialappFQDN ?=${SOCIAL_DOMAIN}
 
 # email address to get public-signed certs ("internal" for self-signed certs by caddy)
 EMAIL4CERTS ?=internal
@@ -221,8 +228,10 @@ exec: ${under}
 echo:
 	@echo ""
 	@echo "########## >>>>>>>>>>>>>>"
-	@echo "DOMAIN:   ${DOMAIN}"
-	@echo "asof:     ${asof}"
+	@echo "DOMAIN:        ${DOMAIN}"
+	@echo "SOCIAL_DOMAIN: ${SOCIAL_DOMAIN}"
+	@echo "PDS_DOMAIN:    ${PDS_DOMAIN}"
+	@echo "asof:          ${asof}"
 	@echo ""
 	@echo "bgsFQDN       ${bgsFQDN}"
 	@echo "bskyFQDN      ${bskyFQDN}"

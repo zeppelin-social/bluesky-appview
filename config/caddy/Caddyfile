@@ -137,7 +137,8 @@ api.{$DOMAIN}, bsky.{$DOMAIN} {
 	reverse_proxy http://bsky:2584
 }
 
-social-app.{$DOMAIN} {
+# by default SOCIAL_DOMAIN is social-app.DOMAIN, but can be reconfigured
+{$SOCIAL_DOMAIN} {
         import cors
 	tls {$EMAIL4CERTS} {
           on_demand
@@ -186,7 +187,7 @@ jetstream.{$DOMAIN} {
 	reverse_proxy http://jetstream:6008
 }
 
-pds.{$DOMAIN} {
+{$PDS_DOMAIN} {
         import cors
 	tls {$EMAIL4CERTS} {
           on_demand
@@ -203,8 +204,9 @@ pds.{$DOMAIN} {
 }
 # ends:  simple mapping <<<<<
 
-# starts:  *.pds.DOMAIN >>>>>>>>>>>
-*.pds.{$DOMAIN} {
+# by default PDS_DOMAIN is pds.DOMAIN, but can be reconfigured
+# starts:  *.PDS_DOMAIN >>>>>>>>>>>
+*.{$PDS_DOMAIN} {
         import cors
         tls {$EMAIL4CERTS} {
           on_demand
@@ -215,25 +217,25 @@ pds.{$DOMAIN} {
         @ws {
           header Connection *Upgrade*
           header Upgrade websocket
-          header_regexp host Host ^(.*)\.pds\.{$DOMAIN}$
+          header_regexp host Host ^(.*)\.{$PDS_DOMAIN}$
 	  path_regexp   path      ^(.*)
         }
         rewrite       @ws           {http.regexp.path.1}
         reverse_proxy @ws           http://pds:2583
 
 #---------------
-#      *.pds.DOMAIN/xrpc*  => http://pds:2583
+#      *.PDS_DOMAIN/xrpc*  => http://pds:2583
         @xrpc {
-            header_regexp host Host ^(.*)\.pds\.{$DOMAIN}$
+            header_regexp host Host ^(.*)\.{$PDS_DOMAIN}$
             path_regexp   path      ^(/xrpc.*)
         }
         rewrite        @xrpc        {http.regexp.path.1}
         reverse_proxy  @xrpc        http://pds:2583
 
 #---------------
-#      *.pds.DOMAIN/.well-known* => http://pds:2583
+#      *.PDS_DOMAIN/.well-known* => http://pds:2583
         @wellknown {
-            header_regexp host Host ^(.*)\.pds\.{$DOMAIN}$
+            header_regexp host Host ^(.*)\.{$PDS_DOMAIN}$
             path_regexp   path      ^(/\.well-known.*)
         }
         rewrite        @wellknown   {http.regexp.path.1}
@@ -241,24 +243,24 @@ pds.{$DOMAIN} {
 
 
 #---------------
-#      *.pds.DOMAIN/robots.txt* => http://pds:2583
+#      *.PDS_DOMAIN/robots.txt* => http://pds:2583
         @robots {
-            header_regexp host Host ^(.*)\.pds\.{$DOMAIN}$
+            header_regexp host Host ^(.*)\.{$PDS_DOMAIN}$
             path_regexp   path      ^(/robots\.txt*)
         }
         rewrite        @robots      {http.regexp.path.1}
         reverse_proxy  @robots      http://pds:2583
 
 #---------------
-#     (.*).pds.DOMAIN/(.*) => http://social-app:8100/profile/$$1/$$2
+#     (.*).DOMAIN/(.*) => http://social-app:8100/profile/$$1/$$2
         @others {
-            header_regexp host Host ^(.*)\.pds\.{$DOMAIN}$
+            header_regexp host Host ^(.*)\.{$PDS_DOMAIN}$
             path_regexp   path      ^(.*)
         }
         rewrite        @others      /profile/{http.regexp.host.1}{http.regexp.path.1}
         reverse_proxy  @others      http://social-app:8100
 }
-# ends: *.pds.DOMAIN <<<<<<<<<<<
+# ends: *.PDS_DOMAIN <<<<<<<<<<<
 
 # starts: additional (long FQDN) >>>>>>>>>
 
