@@ -42,6 +42,10 @@ FEEDGEN_EMAIL ?=feedgen@example.com
 OZONE_ADMIN_HANDLE ?=ozone-admin.${pdsFQDN}
 OZONE_ADMIN_EMAIL  ?=ozone-admin@example.com
 
+# settings for invite codes
+PDS_INVITE_INTERVAL ?= 604800000
+PDS_INVITE_REQUIRED ?= false
+
 # datetime to distinguish docker images and sources (date in %Y-%m-%d or 'latest' in docker image naming manner)
 asof ?=latest
 #asof ?=2024-04-03
