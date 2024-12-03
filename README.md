@@ -32,7 +32,7 @@ this repository aims to get self-hosted bluesky env in easy with:
  - simple:          all bluesky components runs on one host, by docker-compose.
  - less remapping:  simple rules as possible, among FQDN <=> reverse proxy <=> docker-container, for easy understanding and tunning.
 
-at current, my latest release is <strong>2024-11-16r1</strong> based on codes <strong>2024-11-16</strong> of bluesky-social.<br>
+at current, my latest release is <strong>2024-11-30</strong> based on codes <strong>2024-11-30</strong> of bluesky-social.<br>
 
 ## <a id="status"/>Current status regarding self-hosting
 
@@ -84,8 +84,8 @@ Copy `bluesky-params.env.example` to start off.
 export DOMAIN=whatever.yourdomain.com
 
 # 2) set asof date, to distinguish docker images / its sources.
-#    2024-11-16(for latest prebuild, in %Y-%m-%d), or latest (following docker image naming manner in lazy).
-export asof=2024-11-16r1
+#    2024-11-30(for latest prebuild, in %Y-%m-%d), or latest (following docker image naming manner in lazy).
+export asof=2024-11-30
 
 # 3) set email addresses.
 
@@ -528,6 +528,7 @@ then, all of below methods are involved for safe, when it uses self-signed certi
 | pds            | https://github.com/bluesky-social/pds.git              |
 | ozone          | https://github.com/bluesky-social/ozone.git            |
 | did-method-plc | https://github.com/did-method-plc/did-method-plc.git   |
+| jetstream      | https://github.com/bluesky-social/jetstream.git        |
 
 other dependencies:
 
