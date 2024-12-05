@@ -264,7 +264,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bgs
       - DATA_DIR=/data/bigsky
       - RELAY_PERSISTER_DIR=/data/bigsky/persister
-      - RELAY_EVENT_PLAYBACK_TTL=120h # 5 days
+      - RELAY_EVENT_PLAYBACK_TTL=80h
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
 #     - GODEBUG=netdns=go+4
