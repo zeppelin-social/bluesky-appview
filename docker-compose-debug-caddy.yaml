@@ -3,7 +3,7 @@ version: "3"
 volumes:
   caddy-data:
   caddy-config:
- 
+
 services:
   caddy:
 #   cf. https://blog.kurokobo.com/archives/3669#Caddy_acme_server
@@ -22,8 +22,7 @@ services:
     volumes:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
       # CA certificates for self-signed. >>>
-      - ./certs/root.crt:/data/caddy/pki/authorities/local/root.crt
-      - ./certs/root.key:/data/caddy/pki/authorities/local/root.key
+      - ./certs:/data/caddy/pki/authorities/local
       # CA certificates for self-signed. <<<
       - caddy-data:/data
       - caddy-config:/config
@@ -41,7 +40,7 @@ services:
       - GOINSECURE=${GOINSECURE}
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
     volumes:
-       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+      - ./certs:/etc/ssl/certs:ro
 # ends: to generate HTTPS certifications on-demand <<<<<
 
   test-wss:
