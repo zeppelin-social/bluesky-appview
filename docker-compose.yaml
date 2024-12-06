@@ -57,8 +57,8 @@ services:
     volumes:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
       # CA certificates for self-signed. >>>
-      - ./certs/root.crt:/data/caddy/pki/authorities/local/root.crt:ro
-      - ./certs/root.key:/data/caddy/pki/authorities/local/root.key:ro
+      # - ./certs/root.crt:/data/caddy/pki/authorities/local/root.crt:ro
+      # - ./certs/root.key:/data/caddy/pki/authorities/local/root.key:ro
       # CA certificates for self-signed. <<<
       - caddy-data:/data
       - caddy-config:/config
@@ -74,8 +74,8 @@ services:
     environment:
       - GOINSECURE=${GOINSECURE}
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-    volumes:
-      - ./certs:/etc/ssl/certs:ro
+    # volumes:
+      # - ./certs:/etc/ssl/certs:ro
   # to generate HTTPS certifications on-demand <<<<<
   # debug for caddy>>>
 
@@ -110,8 +110,8 @@ services:
       - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-    volumes:
-      - ./certs:/etc/ssl/certs:ro
+    # volumes:
+      # - ./certs:/etc/ssl/certs:ro
       # debug for bluesky with indigo subcmds <<<
 
   database:
@@ -138,7 +138,7 @@ services:
       - PGADMIN_DEFAULT_EMAIL=example@example.com
       - PGADMIN_DEFAULT_PASSWORD=password
       #   volumes:
-      #      - ./certs:/etc/ssl/certs:ro
+      #      # - ./certs:/etc/ssl/certs:ro
     depends_on:
       - database
 
@@ -179,7 +179,7 @@ services:
 #      - 2582:2582
 #    volumes:
 #      # supporting self-signed certificates, easiest way >>>>
-#      - ./certs:/etc/ssl/certs:ro
+#      # - ./certs:/etc/ssl/certs:ro
 #      # supporting self-signed certificates, easiest way <<<<
 #    environment:
 #      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/plc
@@ -244,7 +244,7 @@ services:
       - PDS_SERVICE_DID=did:web:${pdsFQDN}
     volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
       - pds:/pds
     restart: always
@@ -280,7 +280,7 @@ services:
       - RELAY_SPIDERING=true
     volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
       - bgs:/data/bigsky
     restart: always
@@ -328,11 +328,12 @@ services:
       - MOD_SERVICE_DID=did:web:${ozoneFQDN}
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
+      - NODE_OPTIONS=--max-old-space-size=32768
       - PORT=2584
       - REDIS_HOST=redis
     volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
       - bsky:/cache/
 #     - ./repos/atproto/services/bsky/api.js:/app/services/bsky/api.js:ro
@@ -348,9 +349,9 @@ services:
     ports:
       - 8100:8100
     command: /usr/bin/bskyweb serve
-    volumes:
+    # volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
     environment:
       # cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 >>>>
@@ -373,9 +374,9 @@ services:
     image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-palomar:${asof}
     ports:
       - 3999:3999
-    volumes:
+    # volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
     environment:
       # refer https://github.com/bluesky-social/indigo/tree/main/cmd/palomar
@@ -406,7 +407,7 @@ services:
     volumes:
       - jetstream:/data
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
     environment:
       - JETSTREAM_WS_URL=wss://${bgsFQDN}/xrpc/com.atproto.sync.subscribeRepos
@@ -423,9 +424,9 @@ services:
     image: ${UNBRANDED_NAMESPACE}/bluesky-ozone:${asof}
     ports:
       - 3000:3000
-    volumes:
+    # volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
 #     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
     environment:
@@ -471,9 +472,9 @@ services:
     command: node --enable-source-maps api.js
     ports:
       - 3000:3000
-    volumes:
+    # volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
 #     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
     environment:
@@ -510,9 +511,9 @@ services:
   ozone-daemon:
     image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-ozone:${asof}
     command: node --enable-source-maps daemon.js
-    volumes:
+    # volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
     environment:
       - DEBUG_MODE=1
@@ -572,6 +573,6 @@ services:
       retries: 5
     volumes:
       # supporting self-signed certificates, easiest way >>>>
-      - ./certs:/etc/ssl/certs:ro
+      # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
       - feed-generator:/data/

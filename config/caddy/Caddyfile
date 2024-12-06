@@ -51,10 +51,10 @@
 #   accessible as https://ca.DOMAIN:9000/acme/local/directory
 #   cf. https://blog.kurokobo.com/archives/3669#Caddy_acme_server
 #
-ca.{$DOMAIN}:9000 {
-	tls internal
-	acme_server
-}
+# ca.{$DOMAIN}:9000 {
+# 	tls internal
+# 	acme_server
+# }
 # self-hosting CA with ACME,  for self signed certicates <<<<
 
 # starts; reverse proxying rules >>>>>
