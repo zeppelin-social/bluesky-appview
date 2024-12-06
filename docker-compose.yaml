@@ -116,6 +116,7 @@ services:
 
   database:
     image: postgres:16-bookworm
+    command: -c 'max_connections=200'
     ports:
       - 5432:5432
     environment:
@@ -262,6 +263,7 @@ services:
       - BGS_ADMIN_KEY=${BGS_ADMIN_KEY}
       - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/carstore
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bgs
+      - MAX_CARSTORE_CONNECTIONS=30
       - DATA_DIR=/data/bigsky
       - RELAY_PERSISTER_DIR=/data/bigsky/persister
       - RELAY_EVENT_PLAYBACK_TTL=80h
