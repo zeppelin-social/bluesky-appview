@@ -25,25 +25,46 @@ if [ "$EMAIL4CERTS" == "internal" ]
     show_info "Using CA Cert" "for tests: $CURL_ARGS"
   else
     show_heading "Artificial delay" "to allow letsencrypt to work"
-    sleep 20
+    sleep 10
   fi
 
 show_heading "Checking test web containers"
 
 # test HTTPS and WSS with your docker environment
 failures=
-curl ${CURL_ARGS} -L "https://test-wss.${DOMAIN}/" || { show_warning "Error testing https" "to test-wss.${DOMAIN}" ; failures="$failures https://test-wss" ; }
+
+function test_curl_url() {
+  query_url=https://$1
+  test_name=$2
+  result=undefined
+  show_info "Testing $2" "at $query_url"
+  curl ${CURL_ARGS} -L -s --show-error $query_url | jq
+  curl_result="${PIPESTATUS[0]}"
+  if [ "$curl_result" == "0" ]
+    then
+      show_success
+    else
+      show_warning "Error testing https" "to $1: returned $curl_result"
+      failures="$failures $query_url"
+    fi
+}
+
+test_curl_url test-wss.${DOMAIN}/ test-wss
+
 echo test successful | websocat "wss://test-wss.${DOMAIN}/ws" || { show_warning "Error testing wss" "to test-wss.${DOMAIN}" ; failures="$failures wss://test-wss" ; }
+
+# test on the social-app domain
+test_curl_url ${SOCIAL_DOMAIN}/ social-app
 
 # test reverse proxy mapping if it works as expected for bluesky
 #  those should be redirect to PDS
-{ curl ${CURL_ARGS} -L "https://pds.${DOMAIN}/xrpc/any-request" | jq ; } || { show_warning "Error testing xrpc" "to pds.${DOMAIN}" ; failures="$failures https://pds/xrpc" ; }
+test_curl_url ${PDS_DOMAIN}/xrpc/any-request pds/xrpc
 random_name=`pwgen 6`
-{ curl ${CURL_ARGS} -L "https://random-${random_name}.pds.${DOMAIN}/xrpc/any-request" | jq ; } || { show_warning "Error testing xrpc" "to random-${random_name}.pds.${DOMAIN}" ; failures="$failures https://random/xrpc" ; }
+test_curl_url random-${random_name}.${PDS_DOMAIN}/xrpc/any-request random/xrpc
 
 #  those should be redirect to social-app
-{ curl ${CURL_ARGS} -L "https://pds.${DOMAIN}/others" | jq ; } || { show_warning "Error testing https" "to pds.${DOMAIN}/others" ; failures="$failures https://pds/others" ; }
-{ curl ${CURL_ARGS} -L "https://random-${random_name}.pds.${DOMAIN}/others" | jq ; } || { show_warning "Error testing https" "to random-${random_name}.pds.${DOMAIN}" ; failures="$failures https://random/others" ; }
+test_curl_url ${PDS_DOMAIN}/others pds/others
+test_curl_url random-${random_name}.${PDS_DOMAIN}/others random/others
 
 if [ "$failures" = "" ]
   then
