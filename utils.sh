@@ -30,15 +30,15 @@ function show_info {
 }
 
 function show_error {
-  echo -n "$red_color""$start_bold"$1 "$clear_bold"
+  echo -n "$red_color""$start_bold"$1 "$clear_bold" >&2
   shift 1
-  echo "$@""$clear_text"
+  echo "$@""$clear_text" >&2
 }
 
 function show_warning {
-  echo -n "$purple_color""$start_bold"$1 "$clear_bold"
+  echo -n "$purple_color""$start_bold"$1 "$clear_bold" >&2
   shift 1
-  echo "$@""$clear_text"
+  echo "$@""$clear_text" >&2
 }
 
 function show_success {
