@@ -18,6 +18,7 @@ if [[ -f "$feedgen_file" ]]
   else
     show_heading "Create feedgen account"
     make exportDidFile="${feedgen_file}" api_CreateAccount_feedgen || { show_error "Error creating account" "for feedgen" ; exit 1 ; }
+    grep did:plc: ${feedgen_file} >/dev/null || { show_error "Error creating feedgen account" "did not found in file" ; exit 1 ; }
   fi
 # show_heading "Wait here"
 # sleep 20

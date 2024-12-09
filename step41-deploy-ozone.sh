@@ -11,6 +11,7 @@ set +o allexport
 show_heading "Create ozone account" for ozone service/admin
 make api_CreateAccount_ozone email=$OZONE_CONFIRMATION_ADDRESS handle=$OZONE_ADMIN_HANDLE || { show_error "Error creating ozone account:" "Please correct" ; exit 1 ; }
 
+grep did:plc: data/accounts/${OZONE_ADMIN_HANDLE}.secrets >/dev/null || { show_error "Error creating ozone admin account" "did not found in file" ; exit 1 ; }
 # ozone uses the same DID for  OZONE_SERVER_DID and OZONE_ADMIN_DIDS, at [HOSTING.md](https://github.com/bluesky-social/ozone/blob/main/HOSTING.md)
 # FIXME: get OZONE_SERVER_DID and copy to OZONE_ADMIN_DIDS
 
