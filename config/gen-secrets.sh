@@ -41,18 +41,20 @@ BSKY_ADMIN_PASSWORD=$(eval "${GEN_SHORT_PASS}")
 OPENSEARCH_INITIAL_ADMIN_PASSWORD=$(eval "${GEN_RANDOM_PASS}")
 PASS=$(eval "${GEN_LONG_PASS}")
 
+# this section allows overriding with known passwords for testing. Not for use in production!
+
 # the same as atproto/packages/dev-env/src/const.ts
 # use short password
-ADMIN_PASSWORD=admin-pass
+#ADMIN_PASSWORD=admin-pass
 #MODERATOR_PASSWORD=mod-pass
 #TRIAGE_PASSWORD=triage-pass
-PDS_JWT_SECRET=jwt-secret
+#PDS_JWT_SECRET=jwt-secret
 EXAMPLE_LABELER=did:example:labeler
 
 # the same passwords for all admins, atproto/packages/dev-env/src/*.ts
-OZONE_ADMIN_PASSWORD=${ADMIN_PASSWORD}
-PDS_ADMIN_PASSWORD=${ADMIN_PASSWORD}
-BSKY_ADMIN_PASSWORDS=${ADMIN_PASSWORD}
+#OZONE_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+#PDS_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+#BSKY_ADMIN_PASSWORDS=${ADMIN_PASSWORD}
 #OZONE_TRIAGE_PASSWORD=${TRIAGE_PASSWORD}
 #OZONE_MODERATOR_PASSWORD=${MODERATOR_PASSWORD}
 BSKY_LABELS_FROM_ISSUER_DIDS=${EXAMPLE_LABELER}
