@@ -49,11 +49,18 @@ api_ozone_updateDidDoc: getOzoneUserinfo
 _sendMsg:
 	@curl -k -L -X ${method} ${url} ${header} ${msg} | tee -a ${resp}
 
-_mkmsg_createAccount:
+
+ifeq (${PDS_INVITE_REQUIRED}, true)
+_mkmsg_createAccount::
+	@echo PDS invite required: requesting invite code from server
+	$(eval invite_code=$(shell curl --fail --silent --show-error --request POST --user "admin:${PDS_ADMIN_PASSWORD}" --header "Content-Type: application/json" --data '{"useCount": 1}' https://${PDS_DOMAIN}/xrpc/com.atproto.server.createInviteCode | jq --raw-output '.code'))
+endif
+
+_mkmsg_createAccount::
 	$(eval url=${pdsURL}/xrpc/com.atproto.server.createAccount)
 	$(eval method=POST)
 	$(eval header=-H 'Content-Type: application/json'  -H 'Accept: application/json')
-	$(eval msg=-d '{ "email": "${email}" ,"handle": "${handle}", "password": "${password}" }')
+	$(eval msg=-d '{ "email": "${email}" ,"handle": "${handle}", "password": "${password}", "inviteCode": "${invite_code}" }')
 
 getFeedgenUserinfo:
 	$(eval handle=${FEEDGEN_PUBLISHER_HANDLE})
