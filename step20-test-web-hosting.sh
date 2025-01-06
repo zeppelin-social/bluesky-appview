@@ -12,6 +12,8 @@ show_heading "Starting test web containers" "to check caddy configuration"
 
 show_info "Stopping test web containers" "in case any are still running"
 make docker-stop f=./docker-compose-debug-caddy.yaml services= || { show_warning "Error stopping services:" "please examine and fix" ; exit 1 ; }
+show_info "Stopping main docker containers" "in case any are still running"
+make docker-stop f=./docker-compose.yaml services= || { show_warning "Error stopping services:" "please examine and fix" ; exit 1 ; }
 show_info "Starting test web containers"
 make docker-start f=./docker-compose-debug-caddy.yaml services= || { show_error "Error starting containers:" "please examine and fix" ; exit 1 ; }
 
