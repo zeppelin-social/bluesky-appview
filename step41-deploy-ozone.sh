@@ -16,7 +16,7 @@ grep did:plc: data/accounts/${OZONE_ADMIN_HANDLE}.secrets >/dev/null || { show_e
 # FIXME: get OZONE_SERVER_DID and copy to OZONE_ADMIN_DIDS
 
 show_heading "Deploy ozone container" for server $OZONE_SERVER_DID
-make docker-start-bsky-ozone-nowatch OZONE_SERVER_DID=$OZONE_SERVER_DID OZONE_ADMIN_DIDS=$OZONE_SERVER_DID || { show_error "Error deploying ozone container:" "Please correct" ; exit 1 ; }
+make docker-start-bsky-ozone OZONE_SERVER_DID=$OZONE_SERVER_DID OZONE_ADMIN_DIDS=$OZONE_SERVER_DID || { show_error "Error deploying ozone container:" "Please correct" ; exit 1 ; }
 
 # FIXME: wait for ozone startup?
 

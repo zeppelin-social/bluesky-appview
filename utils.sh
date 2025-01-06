@@ -83,3 +83,6 @@ elif [ "`basename "$script_dir"`" == "rebranding" ]
   exit 1
 }
 
+# our params file can override this to true if it is desired, but it messes with the scripting
+export auto_watchlog=false
+

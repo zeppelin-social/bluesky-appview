@@ -9,7 +9,7 @@ set -o allexport
 set +o allexport
 
 show_heading "Deploy jetstream container"
-make docker-start-bsky-jetstream-nowatch
+make docker-start-bsky-jetstream
 
 # FIXME: wait for jetstream?
 

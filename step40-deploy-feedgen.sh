@@ -26,7 +26,7 @@ export FEEDGEN_PUBLISHER_DID="`<"${feedgen_file}"`"
 [ "$FEEDGEN_PUBLISHER_DID" == "" ] && { show_error "Error getting account DID" "for feedgen" ; exit 1 ; }
 
 show_heading "Deploy feedgen container" for feed $FEEDGEN_PUBLISHER_DID
-make docker-start-bsky-feedgen-nowatch FEEDGEN_PUBLISHER_DID=$FEEDGEN_PUBLISHER_DID
+make docker-start-bsky-feedgen FEEDGEN_PUBLISHER_DID=$FEEDGEN_PUBLISHER_DID
 
 show_heading "Wait for startup" "of feedgen"
 wait_for_container feed-generator

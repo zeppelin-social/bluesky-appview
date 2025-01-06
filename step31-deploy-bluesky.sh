@@ -16,10 +16,10 @@ echo unbranded $unbranded_services
 make docker-pull-unbranded unbranded_services="${unbranded_services//$'\n'/ }" || { show_error "Fetching Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Deploy required containers" "(database, caddy etc)"
-make docker-start-nowatch || { show_error "Required Containers failed:" "Please see error above" ; exit 1 ; }
+make docker-start || { show_error "Required Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Deploy bluesky containers" "(plc, bgs, appview, pds, ozone, ...)"
-make docker-start-bsky-nowatch || { show_error "BlueSky Containers failed:" "Please see error above" ; exit 1 ; }
+make docker-start-bsky || { show_error "BlueSky Containers failed:" "Please see error above" ; exit 1 ; }
 
 show_heading "Wait for startup" "of social app"
 # could also wait for Sbsky ?=pds bgs bsky social-app palomar
