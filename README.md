@@ -32,7 +32,7 @@ this repository aims to get self-hosted bluesky env in easy with:
  - simple:          all bluesky components runs on one host, by docker-compose.
  - less remapping:  simple rules as possible, among FQDN <=> reverse proxy <=> docker-container, for easy understanding and tunning.
 
-at current, my latest release is <strong>2024-11-30</strong> based on codes <strong>2024-11-30</strong> of bluesky-social.<br>
+at current, my latest release is <strong>2025-01-04</strong> based on codes <strong>2025-01-04</strong> of bluesky-social.<br>
 
 ## <a id="status"/>Current status regarding self-hosting
 
@@ -84,8 +84,8 @@ Copy `bluesky-params.env.example` to start off.
 export DOMAIN=whatever.yourdomain.com
 
 # 2) set asof date, to distinguish docker images / its sources.
-#    2024-11-30(for latest prebuild, in %Y-%m-%d), or latest (following docker image naming manner in lazy).
-export asof=2024-11-30
+#    2025-01-04(for latest prebuild, in %Y-%m-%d), or latest (following docker image naming manner in lazy).
+export asof=2025-01-04
 
 # 3) set email addresses.
 
@@ -273,6 +273,10 @@ refer [screenshots](./docs/screenshots), for UI operations to create/sign-in acc
 # subscribe almost all collections from jetstream
 websocat "wss://jetstream.${DOMAIN}/subscribe?wantedCollections=app.bsky.actor.profile&wantedCollections=app.bsky.feed.like&wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.repost&wantedCollections=app.bsky.graph.follow&wantedCollections=app.bsky.graph.block&wantedCollections=app.bsky.graph.muteActor&wantedCollections=app.bsky.graph.unmuteActor"
 ```
+
+### <a id="ops5-play-ozone"/>5-2) play with ozone (moderation)
+
+on your browser, access ```https://ozone.${DOMAIN}/configure``` such as ```https://ozone.mysky.local.com/configure```
 
 ### <a id="ops6-stop"/>6) stop all containters
 

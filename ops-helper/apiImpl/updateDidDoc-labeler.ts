@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env tsx
 
 import { AtpAgent }         from "@atproto/api";
 import { Secp256k1Keypair } from "@atproto/crypto";

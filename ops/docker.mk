@@ -1,6 +1,7 @@
 
 docker_network ?= bsky_${DOMAIN}
 dockerCompose ?= docker compose
+auto_watchlog ?= true
 
 _dockerUp: _load_vars _dockerUP_network
 	${_envs} ${dockerCompose} -f ${f} up -d ${services}
@@ -52,29 +53,38 @@ docker-pull-unbranded:
 build:
 	DOMAIN=${DOMAIN} asof=${asof} branded_asof=${branded_asof} ${dockerCompose} -f ${f} build ${services}
 
-docker-start::      docker-start-nowatch
-docker-start-nowatch::      setupdir ${wDir}/config/caddy/Caddyfile ${passfile}
+docker-start::      setupdir ${wDir}/config/caddy/Caddyfile ${passfile}
 ifeq ($(EMAIL4CERTS),internal)
-docker-start-nowatch::      ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt
+docker-start::      ${wDir}/certs/root.crt ${wDir}/certs/ca-certificates.crt
 endif
-docker-start-nowatch::      _applySdep _dockerUp
+docker-start::      _applySdep _dockerUp
+ifeq ($(auto_watchlog),true)
 docker-start::      docker-watchlog
-docker-start-bsky:: docker-start-bsky-nowatch
-docker-start-bsky-nowatch:: _applySbsky _dockerUp
+endif
+
+docker-start-bsky:: _applySbsky _dockerUp
+ifeq ($(auto_watchlog),true)
 docker-start-bsky:: docker-watchlog
-docker-start-bsky-feedgen:: docker-start-bsky-feedgen-nowatch
-docker-start-bsky-feedgen-nowatch:: _applySfeed _dockerUp
+endif
+
+docker-start-bsky-feedgen:: _applySfeed _dockerUp
+ifeq ($(auto_watchlog),true)
 docker-start-bsky-feedgen:: docker-watchlog
-docker-start-bsky-ozone:: docker-start-bsky-ozone-nowatch
-docker-start-bsky-ozone-nowatch:: _applySozone _dockerUp
+endif
+
+docker-start-bsky-ozone:: _applySozone _dockerUp
+ifeq ($(auto_watchlog),true)
 docker-start-bsky-ozone:: docker-watchlog
-docker-start-bsky-jetstream:: docker-start-bsky-jetstream
-docker-start-bsky-jetstream-nowatch:: _applySjetstream _dockerUp
+endif
+
+docker-start-bsky-jetstream:: _applySjetstream _dockerUp
+ifeq ($(auto_watchlog),true)
 docker-start-bsky-jetstream:: docker-watchlog
+endif
 
 # execute publishFeed on feed-generator
 publishFeed:
-	DOMAIN=${DOMAIN} asof=${asof} branded_asof=${branded_asof} docker_network=${docker_network} ${dockerCompose} -f ${f} exec feed-generator npm run publishFeed
+	DOMAIN=${DOMAIN} asof=${asof} branded_asof=${branded_asof} docker_network=${docker_network} ${dockerCompose} -f ${f} exec feed-generator /app/scripts/publishFeed.exp ${FEEDGEN_PUBLISHER_HANDLE} "${FEEDGEN_PUBLISHER_PASSWORD}" https://${pdsFQDN} whats-alf
 
 # execute reload on caddy container
 reloadCaddy:

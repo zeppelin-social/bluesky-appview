@@ -93,5 +93,4 @@ _findDid:
 ifneq ($(exportDidFile), )
 	-@cat ${resp} | jq ".did // empty" | sed 's/"//g' > "${exportDidFile}"
 	-@echo DID saved to ${exportDidFile}
-endif
 
