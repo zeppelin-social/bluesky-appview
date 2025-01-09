@@ -280,6 +280,7 @@ services:
       - RELAY_DEFAULT_REPO_LIMIT=1000000
       - RELAY_NON_ARCHIVAL=true
       - RELAY_SPIDERING=true
+      - MAX_FETCH_CONCURRENCY=500
     volumes:
       # supporting self-signed certificates, easiest way >>>>
       # - ./certs:/etc/ssl/certs:ro
