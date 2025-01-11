@@ -116,7 +116,7 @@ services:
 
   database:
     image: postgres:16-bookworm
-    command: -c 'max_connections=30000' -c 'max_wal_size=48GB' -c 'shared_buffers=56GB' -c 'maintenance_work_mem=4095MB' -c 'work_mem=128MB' -c 'max_parallel_workers=96' -c 'max_parallel_workers_per_gather=24' -c 'wal_buffers=64MB' -c 'checkpoint_completion_target=0.9' -c 'effective_cache_size=16GB' -c 'autovacuum_max_workers=8' -c 'max_locks_per_transaction=256' -c 'log_min_duration_statement=1000'
+    command: -c 'max_connections=10000' -c 'max_wal_size=48GB' -c 'shared_buffers=56GB' -c 'maintenance_work_mem=4095MB' -c 'work_mem=128MB' -c 'max_parallel_workers=96' -c 'max_parallel_workers_per_gather=24' -c 'wal_buffers=64MB' -c 'checkpoint_completion_target=0.9' -c 'effective_cache_size=16GB' -c 'autovacuum_max_workers=8' -c 'max_locks_per_transaction=256' -c 'log_min_duration_statement=1000'
     ports:
       - 5432:5432
     environment:

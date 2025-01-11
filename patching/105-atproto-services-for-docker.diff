@@ -52,7 +52,7 @@ index e14b43f2d..528d588bd 100644
 +  const subscriptionDb = new bsky.Database({
 +      url: env.dbPostgresUrl,
 +      schema: env.dbPostgresSchema,
-+      poolSize: 1000,
++      poolSize: 300,
 +  })
 +  const sub = new bsky.RepoSubscription({
 +      service: env.repoProvider,
