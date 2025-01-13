@@ -34,7 +34,7 @@ index e14b43f2d..528d588bd 100644
 +  const db = new bsky.Database({
 +      url: env.dbPostgresUrl,
 +      schema: env.dbPostgresSchema,
-+      poolSize: 2000,
++      poolSize: 1000,
 +  })
 +
 +  const dataplane =  await bsky.DataPlaneServer.create(
@@ -52,7 +52,7 @@ index e14b43f2d..528d588bd 100644
 +  const subscriptionDb = new bsky.Database({
 +      url: env.dbPostgresUrl,
 +      schema: env.dbPostgresSchema,
-+      poolSize: 500,
++      poolSize: 1000,
 +  })
 +  const sub = new bsky.RepoSubscription({
 +      service: env.repoProvider,
