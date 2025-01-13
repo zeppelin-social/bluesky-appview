@@ -62,14 +62,14 @@ index e14b43f2d..528d588bd 100644
 +    })
 +// ends: involve logics in packages/dev-env/src/bsky.ts   <<<<<<<<<<<<<
 +  await server.start()
-+  sub.start() // involve logics in packages/dev-env/src/bsky.ts
++  // sub.start() // involve logics in packages/dev-env/src/bsky.ts
    // Graceful shutdown (see also https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/)
    const shutdown = async () => {
 -    await bsky.destroy()
 +    await server.destroy()
 +    await bsync.destroy()
 +    await dataplane.destroy()
-+    await sub.destroy()
++    // await sub.destroy()
 +    await db.close()
    }
    process.on('SIGTERM', shutdown)
