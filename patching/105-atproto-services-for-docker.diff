@@ -2,7 +2,7 @@ diff --git a/services/bsky/api.js b/services/bsky/api.js
 index e14b43f2d..528d588bd 100644
 --- a/services/bsky/api.js
 +++ b/services/bsky/api.js
-@@ -43,18 +43,66 @@ const path = require('node:path')
+@@ -43,25 +43,93 @@
  const assert = require('node:assert')
  const cluster = require('cluster')
  const { Secp256k1Keypair } = require('@atproto/crypto')
@@ -18,72 +18,100 @@ index e14b43f2d..528d588bd 100644
 -  const bsky = BskyAppView.create({ config, signingKey })
 -  await bsky.start()
 +
-+// starts: involve logics in packages/dev-env/src/bsky.ts >>>>>>>>>>>>>
-+// Separate migration db in case migration changes some connection state that we need in the tests, e.g. "alter database ... set ..."
++  // starts: involve logics in packages/dev-env/src/bsky.ts >>>>>>>>>>>>>
++  // Separate migration db in case migration changes some connection state that we need in the tests, e.g. "alter database ... set ..."
 +  const migrationDb = new bsky.Database({
-+      url: env.dbPostgresUrl,
-+      schema: env.dbPostgresSchema,
-+    })
++    url: env.dbPostgresUrl,
++    schema: env.dbPostgresSchema,
++  })
 +  if (env.migration) {
-+      await migrationDb.migrateToOrThrow(env.migration)
++    await migrationDb.migrateToOrThrow(env.migration)
 +  } else {
-+      await migrationDb.migrateToLatestOrThrow()
++    await migrationDb.migrateToLatestOrThrow()
 +  }
 +  await migrationDb.close()
 +
 +  const db = new bsky.Database({
-+      url: env.dbPostgresUrl,
-+      schema: env.dbPostgresSchema,
-+      poolSize: 1500,
++    url: env.dbPostgresUrl,
++    schema: env.dbPostgresSchema,
++    poolSize: 1500,
 +  })
 +
-+  const dataplane =  await bsky.DataPlaneServer.create(
-+      db,
-+      env.dataplanePort,
-+      config.didPlcUrl
++  const dataplane = await bsky.DataPlaneServer.create(
++    db,
++    env.dataplanePort,
++    config.didPlcUrl,
 +  )
 +
 +  const bsync = await bsky.MockBsync.create(db, env.bsyncPort)
 +
-+// ends: involve logics in packages/dev-env/src/bsky.ts   <<<<<<<<<<<<<
++  // ends: involve logics in packages/dev-env/src/bsky.ts   <<<<<<<<<<<<<
 +
 +  const server = bsky.BskyAppView.create({ config, signingKey })
-+// starts: involve logics in packages/dev-env/src/bsky.ts >>>>>>>>>>>>>
-+  const subscriptionDb = new bsky.Database({
-+      url: env.dbPostgresUrl,
-+      schema: env.dbPostgresSchema,
-+      poolSize: 1,
-+  })
-+  const sub = new bsky.RepoSubscription({
-+      service: env.repoProvider,
-+      db: subscriptionDb,
-+      idResolver: dataplane.idResolver,
-+      background: new bsky.BackgroundQueue(db),
-+    })
-+// ends: involve logics in packages/dev-env/src/bsky.ts   <<<<<<<<<<<<<
 +  await server.start()
-+  // sub.start() // involve logics in packages/dev-env/src/bsky.ts
    // Graceful shutdown (see also https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/)
    const shutdown = async () => {
 -    await bsky.destroy()
 +    await server.destroy()
 +    await bsync.destroy()
 +    await dataplane.destroy()
-+    // await sub.destroy()
 +    await db.close()
    }
    process.on('SIGTERM', shutdown)
    process.on('disconnect', shutdown) // when clustering
-@@ -62,6 +110,12 @@ const main = async () => {
+ }
 
++const subscribe = async () => {
++  const env = getEnv()
++  const config = bsky.ServerConfig.readEnv()
++
++  const db = new bsky.Database({
++    url: env.dbPostgresUrl,
++    schema: env.dbPostgresSchema,
++    poolSize: 1500,
++  })
++
++  const dataplane = await bsky.DataPlaneServer.create(
++    db,
++    env.dataplanePort,
++    config.didPlcUrl,
++  )
++
++  const sub = new bsky.RepoSubscription({
++    service: env.repoProvider,
++    db,
++    idResolver: dataplane.idResolver,
++    background: new bsky.BackgroundQueue(db),
++  })
++
++  sub.start()
++
++  process.on('SIGTERM', sub.destroy)
++  process.on('disconnect', sub.destroy)
++}
++
  const getEnv = () => ({
    serviceSigningKey: process.env.BSKY_SERVICE_SIGNING_KEY || undefined,
-+  dbPostgresUrl:     process.env.BSKY_DB_POSTGRES_URL     || undefined,
-+  dbPostgresSchema:  process.env.BSKY_DB_POSTGRES_SCHEMA  || undefined,
-+  dataplanePort :    maybeParseInt(process.env.BSKY_DATAPLANE_PORT)     || undefined,
-+  bsyncPort :        maybeParseInt(process.env.BSKY_BSYNC_PORT)         || undefined,
-+  migration:         process.env.ENABLE_MIGRATIONS === 'true'           || undefined,
-+  repoProvider:      process.env.BSKY_REPO_PROVIDER                     || undefined
++  dbPostgresUrl: process.env.BSKY_DB_POSTGRES_URL || undefined,
++  dbPostgresSchema: process.env.BSKY_DB_POSTGRES_SCHEMA || undefined,
++  dataplanePort: maybeParseInt(process.env.BSKY_DATAPLANE_PORT) || undefined,
++  bsyncPort: maybeParseInt(process.env.BSKY_BSYNC_PORT) || undefined,
++  migration: process.env.ENABLE_MIGRATIONS === 'true' || undefined,
++  repoProvider: process.env.BSKY_REPO_PROVIDER || undefined,
  })
 
  const maybeParseInt = (str) => {
+@@ -107,10 +175,13 @@
+       console.log('disconnecting workers')
+       workers.forEach((w) => w.disconnect())
+     })
++
++    subscribe()
+   } else {
+     console.log(`worker ${process.pid} is running`)
+     main()
+   }
+ } else {
+   main() // non-clustering
++  subscribe()
+ }
