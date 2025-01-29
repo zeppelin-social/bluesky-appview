@@ -2,11 +2,12 @@ diff --git a/services/bsky/api.js b/services/bsky/api.js
 index e14b43f2d..528d588bd 100644
 --- a/services/bsky/api.js
 +++ b/services/bsky/api.js
-@@ -43,25 +43,112 @@
+@@ -43,25 +43,114 @@
  const assert = require('node:assert')
  const cluster = require('cluster')
  const { Secp256k1Keypair } = require('@atproto/crypto')
 -const { ServerConfig, BskyAppView } = require('@atproto/bsky')
++const { IdResolver, MemoryCache } = require('@atproto/identity')
 +const bsky = require('@atproto/bsky') // import all bsky features
 
 -const main = async () => {
@@ -93,14 +94,15 @@ index e14b43f2d..528d588bd 100644
 +    poolSize: 4000,
 +  })
 +
-+  const idResolver = new bsky.IdResolver({
++  const idResolver = new IdResolver({
 +    plcUrl: config.didPlcUrl,
++    didCache: new MemoryCache(),
 +  })
 +
 +  const sub = new bsky.RepoSubscription({
 +    service: env.repoProvider,
 +    db,
-+    idResolver: dataplane.idResolver,
++    idResolver: idResolver,
 +    background: new bsky.BackgroundQueue(db),
 +  })
 +
@@ -121,7 +123,7 @@ index e14b43f2d..528d588bd 100644
  })
 
  const maybeParseInt = (str) => {
-@@ -107,10 +194,15 @@
+@@ -107,10 +196,15 @@
        console.log('disconnecting workers')
        workers.forEach((w) => w.disconnect())
      })
