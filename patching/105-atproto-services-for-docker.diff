@@ -2,14 +2,15 @@ diff --git a/services/bsky/api.js b/services/bsky/api.js
 index e14b43f2d..528d588bd 100644
 --- a/services/bsky/api.js
 +++ b/services/bsky/api.js
-@@ -43,25 +43,93 @@
+@@ -43,25 +43,112 @@
  const assert = require('node:assert')
  const cluster = require('cluster')
  const { Secp256k1Keypair } = require('@atproto/crypto')
 -const { ServerConfig, BskyAppView } = require('@atproto/bsky')
 +const bsky = require('@atproto/bsky') // import all bsky features
 
- const main = async () => {
+-const main = async () => {
++const appview = async () => {
    const env = getEnv()
 -  const config = ServerConfig.readEnv()
 +  const config = bsky.ServerConfig.readEnv()
@@ -34,7 +35,33 @@ index e14b43f2d..528d588bd 100644
 +  const db = new bsky.Database({
 +    url: env.dbPostgresUrl,
 +    schema: env.dbPostgresSchema,
-+    poolSize: 1500,
++    poolSize: 2000,
++  })
++
++  // ends: involve logics in packages/dev-env/src/bsky.ts   <<<<<<<<<<<<<
++
++  const server = bsky.BskyAppView.create({ config, signingKey })
++  await server.start()
+   // Graceful shutdown (see also https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/)
+   const shutdown = async () => {
+-    await bsky.destroy()
++    await server.destroy()
++    await db.close()
+   }
+   process.on('SIGTERM', shutdown)
+   process.on('disconnect', shutdown) // when clustering
+ }
+
++const dataplane = async () => {
++  const env = getEnv()
++  const config = bsky.ServerConfig.readEnv()
++  assert(env.serviceSigningKey, 'must set BSKY_SERVICE_SIGNING_KEY')
++  const signingKey = await Secp256k1Keypair.import(env.serviceSigningKey)
++
++  const db = new bsky.Database({
++    url: env.dbPostgresUrl,
++    schema: env.dbPostgresSchema,
++    poolSize: 2000,
 +  })
 +
 +  const dataplane = await bsky.DataPlaneServer.create(
@@ -45,22 +72,17 @@ index e14b43f2d..528d588bd 100644
 +
 +  const bsync = await bsky.MockBsync.create(db, env.bsyncPort)
 +
-+  // ends: involve logics in packages/dev-env/src/bsky.ts   <<<<<<<<<<<<<
-+
-+  const server = bsky.BskyAppView.create({ config, signingKey })
-+  await server.start()
-   // Graceful shutdown (see also https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/)
-   const shutdown = async () => {
--    await bsky.destroy()
++  const server = await bsky.DataPlaneServer.create({ signingKey, dataplane })
++  // Graceful shutdown (see also https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/)
++  const shutdown = async () => {
 +    await server.destroy()
 +    await bsync.destroy()
-+    await dataplane.destroy()
 +    await db.close()
-   }
-   process.on('SIGTERM', shutdown)
-   process.on('disconnect', shutdown) // when clustering
- }
-
++  }
++  process.on('SIGTERM', shutdown)
++  process.on('disconnect', shutdown) // when clustering
++}
++
 +const subscribe = async () => {
 +  const env = getEnv()
 +  const config = bsky.ServerConfig.readEnv()
@@ -68,14 +90,12 @@ index e14b43f2d..528d588bd 100644
 +  const db = new bsky.Database({
 +    url: env.dbPostgresUrl,
 +    schema: env.dbPostgresSchema,
-+    poolSize: 1500,
++    poolSize: 4000,
 +  })
 +
-+  const dataplane = await bsky.DataPlaneServer.create(
-+    db,
-+    env.dataplanePort,
-+    config.didPlcUrl,
-+  )
++  const idResolver = new bsky.IdResolver({
++    plcUrl: config.didPlcUrl,
++  })
 +
 +  const sub = new bsky.RepoSubscription({
 +    service: env.repoProvider,
@@ -101,17 +121,21 @@ index e14b43f2d..528d588bd 100644
  })
 
  const maybeParseInt = (str) => {
-@@ -107,10 +175,13 @@
+@@ -107,10 +194,15 @@
        console.log('disconnecting workers')
        workers.forEach((w) => w.disconnect())
      })
 +
++    dataplane()
 +    subscribe()
    } else {
      console.log(`worker ${process.pid} is running`)
-     main()
+-    main()
++    appview()
    }
  } else {
-   main() // non-clustering
+-  main() // non-clustering
++  dataplane()
 +  subscribe()
++  appview() // non-clustering
  }
