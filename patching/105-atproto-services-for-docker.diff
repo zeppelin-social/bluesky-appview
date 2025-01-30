@@ -123,17 +123,63 @@ index e14b43f2d..528d588bd 100644
  })
 
  const maybeParseInt = (str) => {
-@@ -107,10 +196,15 @@
+@@ -89,28 +178,52 @@
+ const workerCount = maybeParseInt(process.env.CLUSTER_WORKER_COUNT)
+
+ if (workerCount) {
++  if (workerCount < 3)
++    throw new Error('CLUSTER_WORKER_COUNT must be at least 3')
++
+   if (cluster.isPrimary) {
+-    console.log(`primary ${process.pid} is running`)
+-    const workers = new Set()
+-    for (let i = 0; i < workerCount; ++i) {
+-      workers.add(cluster.fork())
+-    }
+     let teardown = false
+-    cluster.on('exit', (worker) => {
++
++    const onExit = (worker, type) => () => {
+       workers.delete(worker)
+       if (!teardown) {
+-        workers.add(cluster.fork()) // restart on crash
++        const worker = cluster.fork({ WORKER_TYPE: type })
++        worker.on('exit', onExit(worker, type))
++        workers.add(worker)
+       }
+-    })
++    }
++
++    console.log(`primary ${process.pid} is running`)
++    const workers = new Set()
++    for (let i = 0; i < workerCount; ++i) {
++      const type = i === 0 ? 'subscription' : i === 1 ? 'dataplane' : 'appview'
++      const worker = cluster.fork({
++        WORKER_TYPE: type,
++      })
++      worker.on('exit', onExit(worker, type))
++      workers.add(worker)
++    }
+     process.on('SIGTERM', () => {
+       teardown = true
        console.log('disconnecting workers')
        workers.forEach((w) => w.disconnect())
      })
-+
-+    dataplane()
-+    subscribe()
    } else {
-     console.log(`worker ${process.pid} is running`)
+-    console.log(`worker ${process.pid} is running`)
 -    main()
-+    appview()
++    console.log(
++      `worker ${process.pid} is running as ${process.env.WORKER_TYPE}`,
++    )
++    if (process.env.WORKER_TYPE === 'appview') {
++      appview()
++    } else if (process.env.WORKER_TYPE === 'dataplane') {
++      dataplane()
++    } else if (process.env.WORKER_TYPE === 'subscription') {
++      subscribe()
++    } else {
++      throw new Error(`unknown worker type ${process.env.WORKER_TYPE}`)
++    }
    }
  } else {
 -  main() // non-clustering
