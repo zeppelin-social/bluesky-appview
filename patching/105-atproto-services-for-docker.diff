@@ -2,12 +2,11 @@ diff --git a/services/bsky/api.js b/services/bsky/api.js
 index e14b43f2d..528d588bd 100644
 --- a/services/bsky/api.js
 +++ b/services/bsky/api.js
-@@ -43,25 +43,114 @@
+@@ -43,25 +43,85 @@
  const assert = require('node:assert')
  const cluster = require('cluster')
  const { Secp256k1Keypair } = require('@atproto/crypto')
 -const { ServerConfig, BskyAppView } = require('@atproto/bsky')
-+const { IdResolver, MemoryCache } = require('@atproto/identity')
 +const bsky = require('@atproto/bsky') // import all bsky features
 
 -const main = async () => {
@@ -84,34 +83,6 @@ index e14b43f2d..528d588bd 100644
 +  process.on('disconnect', shutdown) // when clustering
 +}
 +
-+const subscribe = async () => {
-+  const env = getEnv()
-+  const config = bsky.ServerConfig.readEnv()
-+
-+  const db = new bsky.Database({
-+    url: env.dbPostgresUrl,
-+    schema: env.dbPostgresSchema,
-+    poolSize: 5000,
-+  })
-+
-+  const idResolver = new IdResolver({
-+    plcUrl: config.didPlcUrl,
-+    didCache: new MemoryCache(),
-+  })
-+
-+  const sub = new bsky.RepoSubscription({
-+    service: env.repoProvider,
-+    db,
-+    idResolver: idResolver,
-+    background: new bsky.BackgroundQueue(db),
-+  })
-+
-+  sub.start()
-+
-+  process.on('SIGTERM', sub.destroy)
-+  process.on('disconnect', sub.destroy)
-+}
-+
  const getEnv = () => ({
    serviceSigningKey: process.env.BSKY_SERVICE_SIGNING_KEY || undefined,
 +  dbPostgresUrl: process.env.BSKY_DB_POSTGRES_URL || undefined,
@@ -123,42 +94,44 @@ index e14b43f2d..528d588bd 100644
  })
 
  const maybeParseInt = (str) => {
-@@ -89,28 +178,52 @@
+@@ -89,28 +149,50 @@
  const workerCount = maybeParseInt(process.env.CLUSTER_WORKER_COUNT)
 
  if (workerCount) {
-+  if (workerCount < 3)
++  if (workerCount < 3) {
 +    throw new Error('CLUSTER_WORKER_COUNT must be at least 3')
++  }
 +
    if (cluster.isPrimary) {
 -    console.log(`primary ${process.pid} is running`)
--    const workers = new Set()
++    let teardown = false
++
+     const workers = new Set()
 -    for (let i = 0; i < workerCount; ++i) {
 -      workers.add(cluster.fork())
--    }
-     let teardown = false
++
++    const spawnWorker = (type) => {
++      const worker = cluster.fork({ WORKER_TYPE: type })
++      worker.on('exit', onExit(worker, type))
++      workers.add(worker)
+     }
+-    let teardown = false
 -    cluster.on('exit', (worker) => {
 +
 +    const onExit = (worker, type) => () => {
        workers.delete(worker)
-       if (!teardown) {
+-      if (!teardown) {
 -        workers.add(cluster.fork()) // restart on crash
-+        const worker = cluster.fork({ WORKER_TYPE: type })
-+        worker.on('exit', onExit(worker, type))
-+        workers.add(worker)
-       }
+-      }
 -    })
++      if (!teardown) spawnWorker(type)
 +    }
 +
 +    console.log(`primary ${process.pid} is running`)
-+    const workers = new Set()
-+    for (let i = 0; i < workerCount; ++i) {
-+      const type = i === 0 ? 'subscription' : i === 1 ? 'dataplane' : 'appview'
-+      const worker = cluster.fork({
-+        WORKER_TYPE: type,
-+      })
-+      worker.on('exit', onExit(worker, type))
-+      workers.add(worker)
++
++    spawnWorker('dataplane', 0)
++    for (let i = 1; i < workerCount; ++i) {
++      spawnWorker('appview', i)
 +    }
      process.on('SIGTERM', () => {
        teardown = true
@@ -175,8 +148,6 @@ index e14b43f2d..528d588bd 100644
 +      appview()
 +    } else if (process.env.WORKER_TYPE === 'dataplane') {
 +      dataplane()
-+    } else if (process.env.WORKER_TYPE === 'subscription') {
-+      subscribe()
 +    } else {
 +      throw new Error(`unknown worker type ${process.env.WORKER_TYPE}`)
 +    }
@@ -184,6 +155,5 @@ index e14b43f2d..528d588bd 100644
  } else {
 -  main() // non-clustering
 +  dataplane()
-+  subscribe()
 +  appview() // non-clustering
  }

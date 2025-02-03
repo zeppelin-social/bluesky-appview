@@ -117,7 +117,7 @@ services:
   database:
     image: postgres:16-bookworm
     shm_size: 16gb
-    command: -c 'max_connections=20000' -c 'max_wal_size=48GB' -c 'shared_buffers=36GB' -c 'maintenance_work_mem=4095MB' -c 'work_mem=128MB' -c 'max_parallel_workers=48' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=96' -c 'max_parallel_maintenance_workers=8' -c 'autovacuum_max_workers=12' -c 'wal_buffers=64MB' -c 'checkpoint_completion_target=0.9' -c 'effective_cache_size=16GB' -c 'autovacuum_max_workers=8' -c 'max_locks_per_transaction=256' -c 'log_min_duration_statement=700'
+    command: -c 'max_connections=40000' -c 'max_wal_size=48GB' -c 'shared_buffers=36GB' -c 'maintenance_work_mem=4095MB' -c 'work_mem=128MB' -c 'max_parallel_workers=48' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=96' -c 'max_parallel_maintenance_workers=8' -c 'autovacuum_max_workers=12' -c 'wal_buffers=64MB' -c 'checkpoint_completion_target=0.9' -c 'effective_cache_size=16GB' -c 'autovacuum_max_workers=8' -c 'max_locks_per_transaction=256' -c 'log_min_duration_statement=700'
     ports:
       - 5432:5432
     environment:
@@ -322,7 +322,7 @@ services:
       - BSKY_SEARCH_URL=https://${palomarFQDN}
       - BSKY_SERVER_DID=did:web:${bskyFQDN}
       - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY}
-      - CLUSTER_WORKER_COUNT=6
+      - CLUSTER_WORKER_COUNT=4
       - DEBUG_MODE=1
       - DID_PLC_URL=https://${plcFQDN}
       - ENABLE_MIGRATIONS=false
@@ -346,6 +346,23 @@ services:
     depends_on:
       - database
       - redis
+      - caddy
+
+  bsky-indexer:
+    image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
+    command: node --enable-source-maps api.js
+    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
+    user: root
+    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
+    environment:
+      - BSKY_DB_POSTGRES_SCHEMA=bsky
+      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bsky
+      - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
+      - DID_PLC_URL=https://${plcFQDN}
+      - NODE_OPTIONS=--max-old-space-size=32768
+    restart: always
+    depends_on:
+      - database
       - caddy
 
   social-app:
