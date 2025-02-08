@@ -2,11 +2,18 @@ diff --git a/services/bsky/api.js b/services/bsky/api.js
 index e14b43f2d..528d588bd 100644
 --- a/services/bsky/api.js
 +++ b/services/bsky/api.js
-@@ -43,25 +43,85 @@
- const assert = require('node:assert')
- const cluster = require('cluster')
+@@ -40,30 +40,89 @@
+ }
+
+ // Tracer code above must come before anything else
+-const assert = require('node:assert')
+-const cluster = require('node:cluster')
+ const path = require('node:path')
+-
+-const { BskyAppView, ServerConfig } = require('@atproto/bsky')
++const assert = require('node:assert')
++const cluster = require('cluster')
  const { Secp256k1Keypair } = require('@atproto/crypto')
--const { ServerConfig, BskyAppView } = require('@atproto/bsky')
 +const bsky = require('@atproto/bsky') // import all bsky features
 
 -const main = async () => {
@@ -94,7 +101,7 @@ index e14b43f2d..528d588bd 100644
  })
 
  const maybeParseInt = (str) => {
-@@ -89,28 +149,50 @@
+@@ -91,28 +150,50 @@
  const workerCount = maybeParseInt(process.env.CLUSTER_WORKER_COUNT)
 
  if (workerCount) {
