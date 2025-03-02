@@ -272,7 +272,7 @@ services:
       - MAX_CARSTORE_CONNECTIONS=30
       - DATA_DIR=/data/bigsky
       - RELAY_PERSISTER_DIR=/data/bigsky/persister
-      - RELAY_EVENT_PLAYBACK_TTL=80h
+      - RELAY_EVENT_PLAYBACK_TTL=48h
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
 #     - GODEBUG=netdns=go+4
