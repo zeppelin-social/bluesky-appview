@@ -355,7 +355,9 @@ services:
 
   bsky-indexer:
     image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
-    command: node --enable-source-maps api.js
+    ports:
+      - 9229:9229
+    command: node --enable-source-maps --inspect-brk=0.0.0.0:9229 api.js
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
