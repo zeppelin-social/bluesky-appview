@@ -3,11 +3,11 @@ version: "3.9"
 volumes:
   caddy-data:
     name: caddy-data
-#   driver: local
-#   driver_opts:
-#     o: bind
-#     device: ${dDir}/caddy
-#     type: none
+  #   driver: local
+  #   driver_opts:
+  #     o: bind
+  #     device: ${dDir}/caddy
+  #     type: none
   caddy-config:
     name: caddy-config
   database:
@@ -33,14 +33,14 @@ volumes:
 # social-app:
 
 networks:
- default:
+  default:
     name: ${docker_network}
     external: true
 
 services:
   caddy:
-#   reverse proxy
-#   cf. https://blog.kurokobo.com/archives/3669#Caddy_acme_server
+    #   reverse proxy
+    #   cf. https://blog.kurokobo.com/archives/3669#Caddy_acme_server
     image: caddy:2
     ports:
       - 80:80
@@ -69,17 +69,17 @@ services:
       interval: 5s
       retries: 20
 
-# to generate HTTPS certifications on-demand >>>>>
+  # to generate HTTPS certifications on-demand >>>>>
   caddy-sidecar:
     image: httpd:2
     environment:
       - GOINSECURE=${GOINSECURE}
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
     volumes:
-       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-# to generate HTTPS certifications on-demand <<<<<
+      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+  # to generate HTTPS certifications on-demand <<<<<
 
-# debug for caddy>>>
+  # debug for caddy>>>
   test-wss:
     image: itaru2622/fastapi:bookworm
     environment:
@@ -94,24 +94,24 @@ services:
       - opts=--host 0.0.0.0 --port 8080
     working_dir: /opt/fastapi-samples/3catchall
 
-# debug for caddy <<<
-# debug for bluesky with indigo subcmds >>>
+  # debug for caddy <<<
+  # debug for bluesky with indigo subcmds >>>
   test-indigo:
     image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-tools:${asof}
     build:
-       context: ./repos/indigo/
-       dockerfile: Dockerfile
-       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+      context: ./repos/indigo/
+      dockerfile: Dockerfile
+      args:
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     command: tail -f /dev/null
     environment:
       - ATP_PLC_HOST=https://${plcFQDN}
       - BGS_ADMIN_KEY=${BGS_ADMIN_KEY}
-      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/carstore
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bgs
+      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/carstore
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bgs
       - DATA_DIR=/data/bigsky
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
@@ -124,7 +124,7 @@ services:
     volumes:
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
 
-# debug for bluesky with indigo subcmds <<<
+  # debug for bluesky with indigo subcmds <<<
 
   database:
     image: postgres:16-bookworm
@@ -149,10 +149,30 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=example@example.com
       - PGADMIN_DEFAULT_PASSWORD=password
-#   volumes:
-#      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+    #   volumes:
+    #      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
     depends_on:
       - database
+
+  pgbouncer:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_HOST=database
+      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - PGBOUNCER_DATABASE=*
+      - PGBOUNCER_AUTH_USER=${POSTGRES_USER}
+      - PGBOUNCER_SET_DATABASE_USER=true
+      - PGBOUNCER_SET_DATABASE_PASSWORD=true
+      - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
+      - PGBOUNCER_PORT=5432
+      - PGBOUNCER_POOL_MODE=transaction
+    depends_on:
+      - database
+    restart: always
 
   redis:
     image: redis:7-bookworm
@@ -166,12 +186,12 @@ services:
       context: ./repos/indigo/
       dockerfile: cmd/palomar/Dockerfile.opensearch
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
-# cf. https://github.com/opensearch-project/OpenSearch/issues/8215
-       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        # cf. https://github.com/opensearch-project/OpenSearch/issues/8215
+        - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
     ports:
       - 9200:9200
     environment:
@@ -194,40 +214,40 @@ services:
       - opensearch:/usr/share/opensearch/data/
     restart: always
 
-#  plc:
-#    image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:latest
-##   image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:${asof}
-##   build:
-##     context: ./repos/did-method-plc/
-##     dockerfile: packages/server/Dockerfile
-##     args:
-##      - http_proxy=${http_proxy}
-##      - https_proxy=${https_proxy}
-##      - no_proxy=${no_proxy}
-##      - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
-#    ports:
-#      - 2582:2582
-#    volumes:
-#      # supporting self-signed certificates, easiest way >>>>
-#      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-#      # supporting self-signed certificates, easiest way <<<<
-#    environment:
-#      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/plc
-#      - DB_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
-#      - DB_MIGRATE_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
-#      - DEBUG_MODE=1
-#      - ENABLE_MIGRATIONS=true
-#      - GOINSECURE=${GOINSECURE}
-#      - LOG_DESTINATION=1
-#      - LOG_ENABLED=true
-#      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-#      - NODE_ENV=development
-#      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-#      - PORT=2582
-#    restart: always
-#    depends_on:
-#      - database
-#      - caddy
+  #  plc:
+  #    image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:latest
+  ##   image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:${asof}
+  ##   build:
+  ##     context: ./repos/did-method-plc/
+  ##     dockerfile: packages/server/Dockerfile
+  ##     args:
+  ##      - http_proxy=${http_proxy}
+  ##      - https_proxy=${https_proxy}
+  ##      - no_proxy=${no_proxy}
+  ##      - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+  #    ports:
+  #      - 2582:2582
+  #    volumes:
+  #      # supporting self-signed certificates, easiest way >>>>
+  #      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+  #      # supporting self-signed certificates, easiest way <<<<
+  #    environment:
+  #      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/plc
+  #      - DB_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
+  #      - DB_MIGRATE_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
+  #      - DEBUG_MODE=1
+  #      - ENABLE_MIGRATIONS=true
+  #      - GOINSECURE=${GOINSECURE}
+  #      - LOG_DESTINATION=1
+  #      - LOG_ENABLED=true
+  #      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
+  #      - NODE_ENV=development
+  #      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
+  #      - PORT=2582
+  #    restart: always
+  #    depends_on:
+  #      - database
+  #      - caddy
 
   pds:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
@@ -236,10 +256,10 @@ services:
       context: ./repos/atproto/
       dockerfile: services/pds/Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 2583:2583
     expose:
@@ -262,7 +282,7 @@ services:
       - PDS_CRAWLERS=https://${bgsFQDN}
       - PDS_DATA_DIRECTORY=/pds
       - PDS_DEV_MODE=true
-#     - PDS_BLOBSTORE_DISK_TMP_LOCATION=/pds/image/tmp
+      #     - PDS_BLOBSTORE_DISK_TMP_LOCATION=/pds/image/tmp
       - PDS_DID_PLC_URL=https://${plcFQDN}
       - PDS_EMAIL_FROM_ADDRESS=no-reply@gmail.com
       - PDS_EMAIL_SMTP_URL=${PDS_EMAIL_SMTP_URL}
@@ -273,12 +293,12 @@ services:
       - PDS_JWT_SECRET=${PDS_JWT_SECRET}
       - PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=${PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX}
       - PDS_PORT=2583
-# starts: unset optional env for tesing ozone >>>>>>>
-#     - PDS_MOD_SERVICE_DID=did:web:${ozoneFQDN}
-#     - PDS_MOD_SERVICE_URL=https://${ozoneFQDN}
-#     - PDS_REPORT_SERVICE_DID=did:web:${ozoneFQDN}
-#     - PDS_REPORT_SERVICE_URL=https://${ozoneFQDN}
-# ends: unset optional env for tesing ozone <<<<<<<
+      # starts: unset optional env for tesing ozone >>>>>>>
+      #     - PDS_MOD_SERVICE_DID=did:web:${ozoneFQDN}
+      #     - PDS_MOD_SERVICE_URL=https://${ozoneFQDN}
+      #     - PDS_REPORT_SERVICE_DID=did:web:${ozoneFQDN}
+      #     - PDS_REPORT_SERVICE_URL=https://${ozoneFQDN}
+      # ends: unset optional env for tesing ozone <<<<<<<
       - PDS_SERVICE_DID=did:web:${pdsFQDN}
     volumes:
       # supporting self-signed certificates, easiest way >>>>
@@ -288,6 +308,7 @@ services:
     restart: always
     depends_on:
       - database
+      - pgbouncer
       - caddy
 
   bgs:
@@ -296,22 +317,22 @@ services:
       context: ./repos/indigo/
       dockerfile: cmd/bigsky/Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 2470:2470
     command: /bigsky
     environment:
       - ATP_PLC_HOST=https://${plcFQDN}
       - BGS_ADMIN_KEY=${BGS_ADMIN_KEY}
-      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/carstore
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bgs
+      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/carstore
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bgs
       - DATA_DIR=/data/bigsky
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
-#     - GODEBUG=netdns=go+4
+      #     - GODEBUG=netdns=go+4
       - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT}
       - LOG_DESTINATION=1
       - LOG_ENABLED=true
@@ -327,6 +348,7 @@ services:
     restart: always
     depends_on:
       - database
+      - pgbouncer
       - caddy
 
   bsky:
@@ -336,10 +358,10 @@ services:
       context: ./repos/atproto/
       dockerfile: services/bsky/Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 2584:2584
     expose:
@@ -359,7 +381,7 @@ services:
       - BSKY_DATAPLANE_PORT=3001
       - BSKY_DATAPLANE_URLS=http://bsky:3001
       - BSKY_DB_POSTGRES_SCHEMA=bsky
-      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bsky
+      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
       - BSKY_DID_PLC_URL=https://${plcFQDN}
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - BSKY_PUBLIC_URL=https://${bskyFQDN}
@@ -384,10 +406,11 @@ services:
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       # supporting self-signed certificates, easiest way <<<<
       - bsky:/cache/
-#     - ./repos/atproto/services/bsky/api.js:/app/services/bsky/api.js:ro
+    #     - ./repos/atproto/services/bsky/api.js:/app/services/bsky/api.js:ro
     restart: always
     depends_on:
       - database
+      - pgbouncer
       - redis
       - caddy
 
@@ -407,13 +430,14 @@ services:
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
     environment:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
-      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/bsky
+      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
       - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
       - DID_PLC_URL=https://${plcFQDN}
       - NODE_OPTIONS=--max-old-space-size=32768
     restart: always
     depends_on:
       - database
+      - pgbouncer
       - caddy
 
   social-app:
@@ -423,10 +447,10 @@ services:
       context: ./repos/social-app/
       dockerfile: Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 8100:8100
     command: /usr/bin/bskyweb serve
@@ -435,9 +459,9 @@ services:
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       # supporting self-signed certificates, easiest way <<<<
     environment:
-#      cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 >>>>
+      #      cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 >>>>
       - ATP_APPVIEW_HOST=https://${publicApiFQDN}
-#      cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 <<<<
+      #      cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 <<<<
       - GOINSECURE=${GOINSECURE}
       - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT}
       - HTTP_ADDRESS=:8100
@@ -453,10 +477,10 @@ services:
       context: ./repos/indigo/
       dockerfile: cmd/palomar/Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 3999:3999
     volumes:
@@ -464,11 +488,11 @@ services:
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       # supporting self-signed certificates, easiest way <<<<
     environment:
-#       refer https://github.com/bluesky-social/indigo/tree/main/cmd/palomar
+      #       refer https://github.com/bluesky-social/indigo/tree/main/cmd/palomar
       - ATP_BGS_HOST=wss://${bgsFQDN}
       - ATP_PLC_HOST=https://${plcFQDN}
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/palomar
-#     - ES_CERT_FILE=
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/palomar
+      #     - ES_CERT_FILE=
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - ES_HOSTS=http://admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}@opensearch:9200
       - ES_INSECURE_SSL=true
@@ -481,6 +505,7 @@ services:
     depends_on:
       - opensearch
       - database
+      - pgbouncer
       - caddy
 
   jetstream:
@@ -489,10 +514,10 @@ services:
       context: ./repos/jetstream/
       dockerfile: Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 6008:6008
     volumes:
@@ -517,24 +542,24 @@ services:
       context: ./repos/ozone/
       dockerfile: Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 3000:3000
     volumes:
       # supporting self-signed certificates, easiest way >>>>
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       # supporting self-signed certificates, easiest way <<<<
-#     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
+    #     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
     environment:
-#     https://github.com/bluesky-social/ozone/blob/main/HOSTING.md
+      #     https://github.com/bluesky-social/ozone/blob/main/HOSTING.md
       - LOG_ENABLED=1
       - DEBUG_MODE=1
       - LOG_DESTINATION=1
       - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-#     - NODE_ENV=development
+      #     - NODE_ENV=development
       - NODE_ENV=production
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
       - GOINSECURE=${GOINSECURE}
@@ -546,7 +571,7 @@ services:
       - OZONE_ADMIN_DIDS=${OZONE_ADMIN_DIDS}
       - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
       - OZONE_SIGNING_KEY_HEX=${OZONE_SIGNING_KEY_HEX}
-      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/ozone
+      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/ozone
       - OZONE_DB_POSTGRES_SCHEMA=ozone
       - OZONE_DB_MIGRATE=1
       - OZONE_DID_PLC_URL=https://${plcFQDN}
@@ -564,6 +589,7 @@ services:
     restart: always
     depends_on:
       - database
+      - pgbouncer
       - caddy
 
   ozone:
@@ -573,10 +599,10 @@ services:
       context: ./repos/atproto/
       dockerfile: services/ozone/Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     command: node --enable-source-maps api.js
     ports:
       - 3000:3000
@@ -584,7 +610,7 @@ services:
       # supporting self-signed certificates, easiest way >>>>
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       # supporting self-signed certificates, easiest way <<<<
-#     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
+    #     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
     environment:
       - DEBUG_MODE=1
       - ENABLE_MIGRATIONS=true
@@ -600,7 +626,7 @@ services:
       - OZONE_APPVIEW_PUSH_EVENTS=true
       - OZONE_APPVIEW_URL=https://${bskyFQDN}
       - OZONE_DB_POSTGRES_SCHEMA=ozone
-      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/ozone
+      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/ozone
       - OZONE_DEV_MODE=true
       - OZONE_DID_PLC_URL=https://${plcFQDN}
       - OZONE_MODERATOR_DIDS=did:web:${bskyFQDN}
@@ -614,6 +640,7 @@ services:
     restart: always
     depends_on:
       - database
+      - pgbouncer
       - caddy
 
   ozone-daemon:
@@ -622,10 +649,10 @@ services:
       context: ./repos/atproto/
       dockerfile: services/ozone/Dockerfile
       args:
-       - http_proxy=${http_proxy}
-       - https_proxy=${https_proxy}
-       - no_proxy=${no_proxy}
-       - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     command: node --enable-source-maps daemon.js
     volumes:
       # supporting self-signed certificates, easiest way >>>>
@@ -646,7 +673,7 @@ services:
       - OZONE_APPVIEW_PUSH_EVENTS=true
       - OZONE_APPVIEW_URL=https://${bskyFQDN}
       - OZONE_DB_POSTGRES_SCHEMA=ozone
-      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/ozone
+      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/ozone
       - OZONE_DEV_MODE=true
       - OZONE_DID_PLC_URL=https://${plcFQDN}
       - OZONE_MODERATOR_DIDS=did:web:${bskyFQDN}
@@ -661,19 +688,20 @@ services:
     depends_on:
       - ozone
       - database
+      - pgbouncer
       - caddy
 
   feed-generator:
     image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:latest
-   #image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:${asof}
-   #build:
-   #  context: ./repos/feed-generator/
-   #  dockerfile: Dockerfile
-   #  args:
-   #   - http_proxy=${http_proxy}
-   #   - https_proxy=${https_proxy}
-   #   - no_proxy=${no_proxy}
-   #   - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+    #image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:${asof}
+    #build:
+    #  context: ./repos/feed-generator/
+    #  dockerfile: Dockerfile
+    #  args:
+    #   - http_proxy=${http_proxy}
+    #   - https_proxy=${https_proxy}
+    #   - no_proxy=${no_proxy}
+    #   - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 2586:3000
     environment:
