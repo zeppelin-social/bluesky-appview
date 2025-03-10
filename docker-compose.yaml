@@ -163,6 +163,7 @@ services:
       - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
       - PGBOUNCER_PORT=5432
       - PGBOUNCER_POOL_MODE=transaction
+      - PGBOUNCER_EXTRA_FLAGS=-v -v -v
     depends_on:
       - database
     restart: always
@@ -392,6 +393,7 @@ services:
       - database
       - pgbouncer
       - caddy
+      - bgs
 
   social-app:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
