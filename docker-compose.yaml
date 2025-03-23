@@ -285,16 +285,16 @@ services:
     image: ${BRANDED_NAMESPACE}/bluesky-indigo-bgs:${branded_asof}-${DOMAIN}
     ports:
       - 2470:2470
-    command: /bigsky
+    command: /relay
     environment:
       - ATP_PLC_HOST=https://${plcFQDN}
-      - BGS_ADMIN_KEY=${BGS_ADMIN_KEY}
-      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/carstore
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bgs
-      - MAX_CARSTORE_CONNECTIONS=30
-      - DATA_DIR=/data/bigsky
-      - RELAY_PERSISTER_DIR=/data/bigsky/persister
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/relay
+      - RELAY_ADMIN_KEY=${BGS_ADMIN_KEY}
+      - RELAY_DEFAULT_REPO_LIMIT=700000
+      - RELAY_MAX_QUEUE_PER_PDS=10000
       - RELAY_EVENT_PLAYBACK_TTL=48h
+      - RELAY_PERSISTER_DIR=/data/relay/persist
+      - RELAY_TIME_SEQUENCE=true
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
       #     - GODEBUG=netdns=go+4
@@ -304,16 +304,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - RELAY_NEWPDS_PERDAY_LIMIT=10000
-      - RELAY_DEFAULT_REPO_LIMIT=1000000
-      - RELAY_NON_ARCHIVAL=true
-      - RELAY_SPIDERING=true
-      - MAX_FETCH_CONCURRENCY=500
     volumes:
       # supporting self-signed certificates, easiest way >>>>
       # - ./certs:/etc/ssl/certs:ro
       # supporting self-signed certificates, easiest way <<<<
-      - bgs:/data/bigsky
+      - bgs:/data/relay
     restart: always
     depends_on:
       - database

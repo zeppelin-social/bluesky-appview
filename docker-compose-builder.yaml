@@ -315,7 +315,7 @@ services:
     image: ${BRANDED_NAMESPACE}/bluesky-indigo-bgs:${branded_asof}-${DOMAIN}
     build:
       context: ./repos/indigo/
-      dockerfile: cmd/bigsky/Dockerfile
+      dockerfile: cmd/relay/Dockerfile
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
@@ -323,13 +323,16 @@ services:
         - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
     ports:
       - 2470:2470
-    command: /bigsky
+    command: /relay
     environment:
       - ATP_PLC_HOST=https://${plcFQDN}
-      - BGS_ADMIN_KEY=${BGS_ADMIN_KEY}
-      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/carstore
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bgs
-      - DATA_DIR=/data/bigsky
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/relay
+      - RELAY_ADMIN_KEY=${BGS_ADMIN_KEY}
+      - RELAY_DEFAULT_REPO_LIMIT=700000
+      - RELAY_MAX_QUEUE_PER_PDS=10000
+      - RELAY_EVENT_PLAYBACK_TTL=48h
+      - RELAY_PERSISTER_DIR=/data/relay/persist
+      - RELAY_TIME_SEQUENCE=true
       - DEBUG_MODE=1
       - GOINSECURE=${GOINSECURE}
       #     - GODEBUG=netdns=go+4
@@ -339,12 +342,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - RELAY_NEWPDS_PERDAY_LIMIT=10000
     volumes:
       # supporting self-signed certificates, easiest way >>>>
       - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       # supporting self-signed certificates, easiest way <<<<
-      - bgs:/data/bigsky
+      - bgs:/data/relay
     restart: always
     depends_on:
       - database
