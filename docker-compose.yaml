@@ -165,7 +165,7 @@ services:
       - PGBOUNCER_SET_DATABASE_PASSWORD=true
       - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
       - PGBOUNCER_PORT=5432
-      - PGBOUNCER_POOL_MODE=transaction
+      - PGBOUNCER_POOL_MODE=session
       - PGBOUNCER_EXTRA_FLAGS=-v
     depends_on:
       - database
