@@ -166,7 +166,7 @@ services:
       - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
       - PGBOUNCER_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_DEFAULT_POOL_SIZE=2000
+      - PGBOUNCER_DEFAULT_POOL_SIZE=2500
       - PGBOUNCER_MIN_POOL_SIZE=500
       - PGBOUNCER_MAX_CLIENT_CONN=5000
       - PGBOUNCER_EXTRA_FLAGS=-v
@@ -386,6 +386,7 @@ services:
     environment:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
+      - BSKY_DB_POOL_SIZE=200
       - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
       - DID_PLC_URL=https://${plcFQDN}
       - REDIS_URL=redis://redis:6379
