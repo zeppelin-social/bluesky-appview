@@ -117,7 +117,7 @@ services:
   database:
     image: postgres:16-bookworm
     shm_size: 16gb
-    command: "-c 'max_connections=10000'
+    command: "-c 'max_connections=5000'
               -c 'max_wal_size=24GB' -c 'shared_buffers=16GB' -c 'maintenance_work_mem=1GB' -c 'work_mem=8MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=24GB'
               -c 'max_parallel_workers=16' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=16' -c 'max_parallel_maintenance_workers=6' -c 'autovacuum_max_workers=6' 
               -c 'autovacuum_vacuum_scale_factor=0.05' -c 'autovacuum_analyze_scale_factor=0.02' -c 'autovacuum_vacuum_threshold=1000' -c 'autovacuum_analyze_threshold=500' 
@@ -166,8 +166,8 @@ services:
       - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
       - PGBOUNCER_PORT=5432
       - PGBOUNCER_POOL_MODE=session
-      - PGBOUNCER_DEFAULT_POOL_SIZE=2500
-      - PGBOUNCER_MIN_POOL_SIZE=500
+      - PGBOUNCER_DEFAULT_POOL_SIZE=500
+      - PGBOUNCER_MIN_POOL_SIZE=100
       - PGBOUNCER_MAX_CLIENT_CONN=5000
       - PGBOUNCER_EXTRA_FLAGS=-v
     depends_on:
