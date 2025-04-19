@@ -289,7 +289,7 @@ services:
     image: ${BRANDED_NAMESPACE}/bluesky-indigo-bgs:${branded_asof}-${DOMAIN}
     ports:
       - 2470:2470
-    command: /relay
+    command: /relay serve
     environment:
       - ATP_PLC_HOST=https://${plcFQDN}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/relay
