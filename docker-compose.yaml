@@ -117,7 +117,7 @@ services:
   database:
     image: postgres:16-bookworm
     shm_size: 16gb
-    command: "-c 'max_connections=10000' -c 'search_path=bsky,public,pg_catalog
+    command: "-c 'max_connections=10000' -c 'search_path=bsky,public,pg_catalog'
               -c 'max_wal_size=24GB' -c 'shared_buffers=16GB' -c 'maintenance_work_mem=1GB' -c 'work_mem=8MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=24GB'
               -c 'max_parallel_workers=16' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=16' -c 'max_parallel_maintenance_workers=6' -c 'autovacuum_max_workers=6' 
               -c 'autovacuum_vacuum_scale_factor=0.05' -c 'autovacuum_analyze_scale_factor=0.02' -c 'autovacuum_vacuum_threshold=1000' -c 'autovacuum_analyze_threshold=500' 
@@ -389,7 +389,6 @@ services:
     environment:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
-      - BSKY_DB_POOL_SIZE=200
       - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
       - DID_PLC_URL=https://${plcFQDN}
       - REDIS_URL=redis://redis:6379
