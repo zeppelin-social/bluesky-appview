@@ -389,7 +389,7 @@ services:
     environment:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
-      - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
+      - BSKY_REPO_PROVIDER=wss://relay1.us-east.bsky.network
       - DID_PLC_URL=https://${plcFQDN}
       - REDIS_URL=redis://redis:6379
       - LOG_VERBOSE=true
