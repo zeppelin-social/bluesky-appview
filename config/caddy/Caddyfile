@@ -242,7 +242,7 @@ jetstream.{$DOMAIN} {
           header Connection *Upgrade*
           header Upgrade websocket
           header_regexp host Host ^(.*)\.{$DOMAIN}$
-	  path_regexp   path      ^(.*)
+          path_regexp   path      ^(.*)
         }
         rewrite       @ws           {http.regexp.path.1}
         reverse_proxy @ws           http://pds:2583
@@ -250,6 +250,8 @@ jetstream.{$DOMAIN} {
 #---------------
 #      *.DOMAIN/xrpc*  => http://pds:2583
         @xrpc {
+            not host bsky.{$DOMAIN}
+            not host api.{$DOMAIN}
             header_regexp host Host ^(.*)\.{$DOMAIN}$
             path_regexp   path      ^(/xrpc.*)
         }
@@ -259,6 +261,8 @@ jetstream.{$DOMAIN} {
 #---------------
 #      *.DOMAIN/.well-known* => http://pds:2583
         @wellknown {
+            not host bsky.{$DOMAIN}
+            not host api.{$DOMAIN}
             header_regexp host Host ^(.*)\.{$DOMAIN}$
             path_regexp   path      ^(/\.well-known.*)
         }
@@ -273,7 +277,7 @@ jetstream.{$DOMAIN} {
             path_regexp   path      ^(/robots\.txt*)
         }
         rewrite        @robots      {http.regexp.path.1}
-        reverse_proxy  @robots      http://pds:2583
+        reverse_proxy  @robots      http://social-app:8100
 
 #---------------
 ##     (.*).pds.DOMAIN/(.*) => http://social-app:8100/profile/$$1/$$2
