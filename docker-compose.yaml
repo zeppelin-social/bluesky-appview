@@ -328,7 +328,7 @@ services:
       - 2584:2584
     expose:
       - 2584
-    command: bun run api.js --inspect-brk
+    command: node --enable-source-maps api.js
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
@@ -382,7 +382,7 @@ services:
     image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
     ports:
       - 9229:9229
-    command: node --enable-source-maps --inspect-brk=0.0.0.0:9229 api.js
+    command: bun run --inspect-brk=0.0.0.0:9229 api.js
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
