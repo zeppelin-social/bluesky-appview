@@ -379,6 +379,7 @@ services:
       - caddy
 
   bsky-indexer:
+    init: true
     image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
     ports:
       - 9229:9229
