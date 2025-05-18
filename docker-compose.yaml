@@ -117,8 +117,8 @@ services:
   database:
     image: postgres:16-bookworm
     shm_size: 16gb
-    command: "-c 'max_connections=10000' -c 'search_path=bsky,public,pg_catalog'
-              -c 'max_wal_size=24GB' -c 'shared_buffers=16GB' -c 'maintenance_work_mem=1GB' -c 'work_mem=8MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=24GB'
+    command: "-c 'max_connections=1000' -c 'idle_in_transaction_session_timeout=60000' -c 'statement_timeout=300000' -c 'search_path=bsky,public,pg_catalog'
+              -c 'max_wal_size=24GB' -c 'shared_buffers=12GB' -c 'maintenance_work_mem=256MB' -c 'work_mem=2MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=44GB'
               -c 'max_parallel_workers=16' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=16' -c 'max_parallel_maintenance_workers=6' -c 'autovacuum_max_workers=6' 
               -c 'autovacuum_vacuum_scale_factor=0.05' -c 'autovacuum_analyze_scale_factor=0.02' -c 'autovacuum_vacuum_threshold=1000' -c 'autovacuum_analyze_threshold=500' 
               -c 'checkpoint_completion_target=0.9' -c 'max_locks_per_transaction=256' 
@@ -168,9 +168,10 @@ services:
       - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
       - PGBOUNCER_PORT=5432
       - PGBOUNCER_POOL_MODE=transaction
-      - PGBOUNCER_DEFAULT_POOL_SIZE=1500
-      - PGBOUNCER_MIN_POOL_SIZE=200
-      - PGBOUNCER_MAX_CLIENT_CONN=20000
+      - PGBOUNCER_DEFAULT_POOL_SIZE=250
+      - PGBOUNCER_RESERVE_POOL_SIZE=50
+      - PGBOUNCER_MIN_POOL_SIZE=0
+      - PGBOUNCER_MAX_CLIENT_CONN=5000
       - PGBOUNCER_MAX_PREPARED_STATEMENTS=1000
       - PGBOUNCER_EXTRA_FLAGS=-v
     depends_on:
