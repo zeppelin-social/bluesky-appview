@@ -89,7 +89,7 @@ f ?=${wDir}/docker-compose.yaml
 
 # folders of repos
 #_nrepo  ?=atproto indigo social-app feed-generator did-method-plc pds ozone jetstream
-_nrepo   ?=atproto indigo social-app ozone jetstream
+_nrepo   ?=atproto indigo social-app ozone jetstream bsky-indexer
 repoDirs ?=$(addprefix ${rDir}/, ${_nrepo})
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -144,6 +144,11 @@ ifneq ($(fork_repo_prefix),)
 	-(cd $@; git remote add fork ${fork_repo_prefix}atproto.git; git remote update fork)
 endif
 
+${rDir}/bsky-indexer:
+	git clone ${origin_repo_bsky_prefix}bsky-indexer.git $@
+ifneq ($(fork_repo_prefix),)
+	-(cd $@; git remote add fork ${fork_repo_prefix}bsky-indexer.git; git remote update fork)
+endif
 
 ${rDir}/indigo:
 	git clone ${origin_repo_bsky_prefix}indigo.git $@

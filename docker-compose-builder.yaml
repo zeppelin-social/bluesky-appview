@@ -419,14 +419,13 @@ services:
   bsky-indexer:
     image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
     build:
-      context: ./repos/atproto/
-      dockerfile: services/bsky-indexer/Dockerfile
+      context: ./repos/bsky-indexer/
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
         - no_proxy=${no_proxy}
         - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
-    command: node --enable-source-maps api.js
+    command: deno run --allow-all src/bin.ts
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
@@ -435,7 +434,6 @@ services:
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
       - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
       - DID_PLC_URL=https://${plcFQDN}
-      - NODE_OPTIONS=--max-old-space-size=32768
     restart: always
     depends_on:
       - database
