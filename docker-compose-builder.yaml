@@ -127,7 +127,7 @@ services:
   # debug for bluesky with indigo subcmds <<<
 
   database:
-    image: ${UNBRANDED_NAMESPACE}/postgres:17
+    image: ${BRANDED_NAMESPACE}/postgres:17
     build:
       dockerfile_inline: |
         FROM postgres:17
