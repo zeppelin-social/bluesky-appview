@@ -127,7 +127,20 @@ services:
   # debug for bluesky with indigo subcmds <<<
 
   database:
-    image: cherts/pg-repack:1.5.2
+    image: ${UNBRANDED_NAMESPACE}/postgres:17
+    build:
+      dockerfile_inline: |
+        FROM postgres:17
+
+        RUN apt-get update --fix-missing && \
+            apt-get install -y postgresql-server-dev-17 wget openssh-server
+        
+        RUN apt-get install -y make unzip gcc libssl-dev zlib1g-dev liblz4-dev libreadline-dev libzstd-dev
+        RUN wget -q -O pg_repack.zip "https://api.pgxn.org/dist/pg_repack/1.5.2/pg_repack-1.5.2.zip"
+        RUN unzip pg_repack.zip && rm pg_repack.zip
+        RUN cd pg_repack-* && make && make install
+        RUN rm -rf pg_repack-*
+        RUN apt-get remove --auto-remove -y make unzip gcc libssl-dev zlib1g-dev libreadline-dev libzstd-dev
     ports:
       - 5432:5432
     environment:
