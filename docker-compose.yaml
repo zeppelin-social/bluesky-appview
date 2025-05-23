@@ -124,15 +124,13 @@ services:
               -c 'checkpoint_completion_target=0.9' -c 'max_locks_per_transaction=256' 
               -c 'log_min_duration_statement=400' -c 'log_min_error_statement=warning' -c 'log_temp_files=0' -c 'log_lock_waits=true' -c 'log_error_verbosity=verbose' -c 'log_rotation_size=40MB'
                -c 'shared_preload_libraries=pg_stat_statements' -c 'pg_stat_statements.track=all'"
-    expose:
-      - 6432
     environment:
       - GOINSECURE=${GOINSECURE}
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - PGPORT=6432
+      - PGPORT=5432
       - POSTGRES_DB=healthcheck
     volumes:
       - ./config/init-postgres:/docker-entrypoint-initdb.d/
@@ -157,7 +155,7 @@ services:
       - 5432:5432
     environment:
       - POSTGRESQL_HOST=database
-      - POSTGRESQL_PORT=6432
+      - POSTGRESQL_PORT=5432
       - POSTGRESQL_USERNAME=${POSTGRES_USER}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
       - PGBOUNCER_DATABASE=*
