@@ -116,6 +116,7 @@ services:
 
   database:
     image: ${UNBRANDED_NAMESPACE}/bluesky-postgres:${asof}
+    pull_policy: never
     shm_size: 16gb
     command: "-c 'max_connections=4000' -c 'idle_in_transaction_session_timeout=60000' -c 'statement_timeout=300000' -c 'search_path=bsky,public,pg_catalog'
               -c 'max_wal_size=24GB' -c 'shared_buffers=12GB' -c 'maintenance_work_mem=256MB' -c 'work_mem=2MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=44GB'
