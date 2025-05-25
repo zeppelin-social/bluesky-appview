@@ -118,13 +118,14 @@ services:
     image: ${UNBRANDED_NAMESPACE}/bluesky-postgres:${asof}
     pull_policy: never
     shm_size: 16gb
-    command: "-c 'max_connections=4000' -c 'idle_in_transaction_session_timeout=60000' -c 'statement_timeout=300000' -c 'search_path=bsky,public,pg_catalog'
-              -c 'max_wal_size=24GB' -c 'shared_buffers=12GB' -c 'maintenance_work_mem=256MB' -c 'work_mem=2MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=44GB'
-              -c 'max_parallel_workers=16' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=16' -c 'max_parallel_maintenance_workers=6' -c 'autovacuum_max_workers=6' 
-              -c 'autovacuum_vacuum_scale_factor=0.05' -c 'autovacuum_analyze_scale_factor=0.02' -c 'autovacuum_vacuum_threshold=1000' -c 'autovacuum_analyze_threshold=500' 
-              -c 'checkpoint_completion_target=0.9' -c 'max_locks_per_transaction=256' 
-              -c 'log_min_duration_statement=400' -c 'log_min_error_statement=warning' -c 'log_temp_files=0' -c 'log_lock_waits=true' -c 'log_error_verbosity=verbose' -c 'log_rotation_size=40MB'
-               -c 'shared_preload_libraries=pg_stat_statements' -c 'pg_stat_statements.track=all'"
+    command:
+      "-c 'max_connections=4000' -c 'idle_in_transaction_session_timeout=60000' -c 'statement_timeout=300000' -c 'search_path=bsky,public,pg_catalog'
+      -c 'max_wal_size=24GB' -c 'shared_buffers=12GB' -c 'maintenance_work_mem=256MB' -c 'work_mem=2MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=44GB'
+      -c 'max_parallel_workers=16' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=16' -c 'max_parallel_maintenance_workers=6' -c 'autovacuum_max_workers=6'
+      -c 'autovacuum_vacuum_scale_factor=0.05' -c 'autovacuum_analyze_scale_factor=0.02' -c 'autovacuum_vacuum_threshold=1000' -c 'autovacuum_analyze_threshold=500'
+      -c 'checkpoint_completion_target=0.9' -c 'max_locks_per_transaction=256'
+      -c 'log_min_duration_statement=400' -c 'log_min_error_statement=warning' -c 'log_temp_files=0' -c 'log_lock_waits=true' -c 'log_error_verbosity=verbose' -c 'log_rotation_size=40MB'
+      -c 'shared_preload_libraries=pg_stat_statements' -c 'pg_stat_statements.track=all'"
     environment:
       - GOINSECURE=${GOINSECURE}
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
@@ -344,6 +345,7 @@ services:
       - BSKY_DATAPLANE_URLS=http://bsky:3001
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
+      - BSKY_DB_POOL_SIZE=500
       - BSKY_DID_PLC_URL=https://${plcFQDN}
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - BSKY_PUBLIC_URL=https://${bskyFQDN}
@@ -406,7 +408,8 @@ services:
     image: ${BRANDED_NAMESPACE}/bluesky-social-app:${branded_asof}-${DOMAIN}
     ports:
       - 8100:8100
-    command: /usr/bin/bskyweb serve
+    command:
+      /usr/bin/bskyweb serve
       # volumes:
       # supporting self-signed certificates, easiest way >>>>
       # - ./certs:/etc/ssl/certs:ro
@@ -422,7 +425,11 @@ services:
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
     healthcheck:
-      test: ["CMD-SHELL", "curl http://localhost:8100 | grep 'API docs at https://atproto.com' >/dev/null"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl http://localhost:8100 | grep 'API docs at https://atproto.com' >/dev/null",
+        ]
       timeout: 10s
       interval: 10s
       retries: 5
@@ -571,7 +578,8 @@ services:
 
   ozone-daemon:
     image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-ozone:${asof}
-    command: node --enable-source-maps daemon.js
+    command:
+      node --enable-source-maps daemon.js
       # volumes:
       # supporting self-signed certificates, easiest way >>>>
       # - ./certs:/etc/ssl/certs:ro
