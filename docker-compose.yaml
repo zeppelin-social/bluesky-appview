@@ -79,41 +79,6 @@ services:
   # to generate HTTPS certifications on-demand <<<<<
   # debug for caddy>>>
 
-  test-wss:
-    image: itaru2622/fastapi:bookworm
-    environment:
-      - app=main:app
-      - opts=--host 0.0.0.0 --port 8080
-    working_dir: /opt/fastapi-samples/3catchall
-
-  test-ws:
-    image: itaru2622/fastapi:bookworm
-    environment:
-      - app=main:app
-      - opts=--host 0.0.0.0 --port 8080
-    working_dir: /opt/fastapi-samples/3catchall
-
-  test-indigo:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-tools:${asof}
-    command: tail -f /dev/null
-    environment:
-      - ATP_PLC_HOST=https://${plcFQDN}
-      - BGS_ADMIN_KEY=${BGS_ADMIN_KEY}
-      - CARSTORE_DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/carstore
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}pgbouncer/bgs
-      - DATA_DIR=/data/bigsky
-      - DEBUG_MODE=1
-      - GOINSECURE=${GOINSECURE}
-      - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - LOG_DESTINATION=1
-      - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      # volumes:
-      # - ./certs:/etc/ssl/certs:ro
-      # debug for bluesky with indigo subcmds <<<
-
   database:
     image: ${UNBRANDED_NAMESPACE}/bluesky-postgres:${asof}
     pull_policy: never
