@@ -348,7 +348,7 @@ services:
     image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
     ports:
       - 9229:9229
-    command: deno run --allow-all src/bin.ts
+    command: deno run --allow-all src/bin/bin.ts
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<

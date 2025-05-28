@@ -438,7 +438,7 @@ services:
         - https_proxy=${https_proxy}
         - no_proxy=${no_proxy}
         - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
-    command: deno run --allow-all src/bin.ts
+    command: deno run --allow-all src/bin/bin.ts
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
     # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
