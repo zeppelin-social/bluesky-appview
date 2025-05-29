@@ -172,6 +172,7 @@ services:
 
   zplc-ingest:
     image: ${UNBRANDED_NAMESPACE}/bluesky-zplc:${asof}
+    pull_policy: never
     command: deno run -A src/ingest.ts
     volumes:
       - zplc-data:/plc/data
@@ -179,6 +180,7 @@ services:
 
   zplc-server:
     image: ${UNBRANDED_NAMESPACE}/bluesky-zplc:${asof}
+    pull_policy: never
     command: deno serve -A --parallel --port 2582 src/serve-plc.ts
     ports:
       - 2582:2582
