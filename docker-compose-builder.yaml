@@ -184,7 +184,7 @@ services:
     build:
       context: ./repos/zplc-server/
       dockerfile_inline: |
-        FROM denoland/deno:alpine
+        FROM denoland/deno:latest
         WORKDIR /plc
         COPY --chown=deno:deno . .
     volumes:
@@ -196,7 +196,7 @@ services:
     build:
       context: ./repos/zplc-server/
       dockerfile_inline: |
-        FROM denoland/deno:alpine
+        FROM denoland/deno:latest
         WORKDIR /plc
         COPY --chown=deno:deno . .
     ports:
