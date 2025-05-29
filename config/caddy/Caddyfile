@@ -163,13 +163,13 @@ http://test-ws.{$DOMAIN} {
     reverse_proxy  @others      http://social-app:8100
 }
 
-#plc.{$DOMAIN} {
-#        import cors
-#	tls {$EMAIL4CERTS} {
-#          on_demand
-#        }
-#	reverse_proxy http://plc:2582
-#}
+plc.{$DOMAIN} {
+    import cors
+	tls {$EMAIL4CERTS} {
+        on_demand
+    }
+	reverse_proxy http://zplc-server:2582
+}
 
 bgs.{$DOMAIN} {
         import cors

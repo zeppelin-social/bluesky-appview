@@ -26,11 +26,8 @@ volumes:
     name: redis
   jetstream:
     name: jetstream
-# ozone:
-# ozone-daemon:
-# plc:
-# palomar:
-# social-app:
+  zplc-data:
+    name: zplc-data
 
 networks:
   default:
@@ -89,7 +86,7 @@ services:
 
         RUN apt-get update --fix-missing && \
             apt-get install -y postgresql-server-dev-16 wget openssh-server
-        
+
         RUN apt-get install -y make unzip gcc libssl-dev zlib1g-dev liblz4-dev libreadline-dev libzstd-dev
         RUN wget -q -O pg_repack.zip "https://api.pgxn.org/dist/pg_repack/1.5.2/pg_repack-1.5.2.zip"
         RUN unzip pg_repack.zip && rm pg_repack.zip
@@ -182,40 +179,31 @@ services:
       - opensearch:/usr/share/opensearch/data/
     restart: always
 
-  #  plc:
-  #    image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:latest
-  ##   image: ${UNBRANDED_NAMESPACE}/bluesky-did-method-plc:${asof}
-  ##   build:
-  ##     context: ./repos/did-method-plc/
-  ##     dockerfile: packages/server/Dockerfile
-  ##     args:
-  ##      - http_proxy=${http_proxy}
-  ##      - https_proxy=${https_proxy}
-  ##      - no_proxy=${no_proxy}
-  ##      - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
-  #    ports:
-  #      - 2582:2582
-  #    volumes:
-  #      # supporting self-signed certificates, easiest way >>>>
-  #      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-  #      # supporting self-signed certificates, easiest way <<<<
-  #    environment:
-  #      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/plc
-  #      - DB_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
-  #      - DB_MIGRATE_CREDS_JSON={"username":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}","host":"database","port":"5432","database":"plc"}
-  #      - DEBUG_MODE=1
-  #      - ENABLE_MIGRATIONS=true
-  #      - GOINSECURE=${GOINSECURE}
-  #      - LOG_DESTINATION=1
-  #      - LOG_ENABLED=true
-  #      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-  #      - NODE_ENV=development
-  #      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-  #      - PORT=2582
-  #    restart: always
-  #    depends_on:
-  #      - database
-  #      - caddy
+  zplc-ingest:
+    image: ${UNBRANDED_NAMESPACE}/bluesky-zplc:${asof}
+    build:
+      context: ./repos/zplc-server/
+      dockerfile_inline: |
+        FROM denoland/deno:alpine
+        WORKDIR /plc
+        COPY --chown=deno:deno . .
+    volumes:
+      - zplc-data:/plc/data
+    restart: always
+
+  zplc-server:
+    image: ${UNBRANDED_NAMESPACE}/bluesky-zplc:${asof}
+    build:
+      context: ./repos/zplc-server/
+      dockerfile_inline: |
+        FROM denoland/deno:alpine
+        WORKDIR /plc
+        COPY --chown=deno:deno . .
+    ports:
+      - 2582:2582
+    volumes:
+      - zplc-data:/plc/data
+    restart: always
 
   pds:
     # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
@@ -437,7 +425,6 @@ services:
       - NODE_ENV=development
       - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
     restart: always
-
 
   palomar:
     image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-palomar:${asof}

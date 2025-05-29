@@ -24,7 +24,7 @@ jetstreamFQDN ?=jetstream.${DOMAIN}
 ozoneFQDN     ?=ozone.${DOMAIN}
 palomarFQDN   ?=palomar.${DOMAIN}
 pdsFQDN       ?=${PDS_DOMAIN}
-plcFQDN       ?=plc.directory
+plcFQDN       ?=plc.${DOMAIN}
 publicApiFQDN ?=${bskyFQDN}
 socialappFQDN ?=${SOCIAL_DOMAIN}
 
@@ -89,7 +89,7 @@ f ?=${wDir}/docker-compose.yaml
 
 # folders of repos
 #_nrepo  ?=atproto indigo social-app feed-generator did-method-plc pds ozone jetstream
-_nrepo   ?=atproto indigo social-app ozone jetstream bsky-indexer
+_nrepo   ?=bsky-indexer zplc-server atproto indigo social-app ozone jetstream
 repoDirs ?=$(addprefix ${rDir}/, ${_nrepo})
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -119,7 +119,7 @@ LOG_LEVEL_DEFAULT ?=debug
 #    # no plc in Sdep, comparing below line.
 #
 Sdep  ?=caddy caddy-sidecar database redis opensearch pgadmin
-Sbsky ?=pds bgs bsky bsky-indexer social-app palomar
+Sbsky ?=pds bgs bsky bsky-indexer social-app palomar zplc-server
 Sfeed ?=feed-generator
 #Sozone ?=ozone ozone-daemon
 Sozone ?=ozone-standalone
@@ -148,6 +148,12 @@ ${rDir}/bsky-indexer:
 	git clone ${origin_repo_bsky_prefix}bsky-indexer.git $@
 ifneq ($(fork_repo_prefix),)
 	-(cd $@; git remote add fork ${fork_repo_prefix}bsky-indexer.git; git remote update fork)
+endif
+
+${rDir}/zplc-server:
+	git clone ${origin_repo_bsky_prefix}zplc-server.git $@
+ifneq ($(fork_repo_prefix),)
+	-(cd $@; git remote add fork ${fork_repo_prefix}zplc-server.git; git remote update fork)
 endif
 
 ${rDir}/indigo:
