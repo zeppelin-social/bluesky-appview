@@ -25,11 +25,8 @@ volumes:
     name: redis
   jetstream:
     name: jetstream
-# ozone:
-# ozone-daemon:
-# plc:
-# palomar:
-# social-app:
+  zplc-data:
+    name: zplc-data
 
 networks:
   default:
