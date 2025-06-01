@@ -334,7 +334,6 @@ services:
       - BSKY_BSYNC_HTTP_VERSION=1.1
       - BSKY_BSYNC_PORT=3002
       - BSKY_BSYNC_URL=http://bsky:3002
-      - BSKY_COURIER_URL=http://fake-courier.example.invalid/
       - BSKY_DATAPLANE_HTTP_VERSION=1.1
       - BSKY_DATAPLANE_PORT=3001
       - BSKY_DATAPLANE_URLS=http://bsky:3001
