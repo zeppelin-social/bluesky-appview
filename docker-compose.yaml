@@ -299,7 +299,7 @@ services:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
       - BSKY_DB_POOL_SIZE=500
-      - BSKY_DID_PLC_URL=https://plc.directory
+      - BSKY_DID_PLC_URL=https://${plcFQDN}
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - BSKY_PUBLIC_URL=https://${bskyFQDN}
       - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
