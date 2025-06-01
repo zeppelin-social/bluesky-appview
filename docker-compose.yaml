@@ -305,6 +305,7 @@ services:
       - BSKY_SEARCH_URL=https://${palomarFQDN}
       - BSKY_SERVER_DID=did:web:${bskyFQDN}
       - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY}
+      - BSKY_INDEXED_AT_EPOCH=2025-05-31T00:00:00+00:00
       - CLUSTER_WORKER_COUNT=3
       - DEBUG_MODE=1
       - DID_PLC_URL=https://${plcFQDN}
