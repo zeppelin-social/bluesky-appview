@@ -395,6 +395,24 @@ services:
       - pgbouncer
       - caddy
 
+  labelmuncher:
+    image: ${UNBRANDED_NAMESPACE}/bluesky-labelmuncher:${asof}
+    build:
+      context: ./repos/labelmuncher/
+      dockerfile: Dockerfile
+      args:
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+        - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
+      command: deno run --allow-all src/bin.ts
+      user: root
+      restart: always
+      depends_on:
+        - database
+        - pgbouncer
+        - caddy
+
   social-app:
     #image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
     image: ${BRANDED_NAMESPACE}/bluesky-social-app:${branded_asof}-${DOMAIN}

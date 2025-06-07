@@ -119,7 +119,7 @@ LOG_LEVEL_DEFAULT ?=debug
 #    # no plc in Sdep, comparing below line.
 #
 Sdep  ?=caddy caddy-sidecar database redis opensearch pgadmin
-Sbsky ?=pds bgs bsky bsky-indexer social-app palomar zplc-server zplc-ingest
+Sbsky ?=pds bgs bsky bsky-indexer labelmuncher social-app palomar zplc-server zplc-ingest
 Sfeed ?=feed-generator
 #Sozone ?=ozone ozone-daemon
 Sozone ?=ozone-standalone
@@ -154,6 +154,12 @@ ${rDir}/zplc-server:
 	git clone ${origin_repo_bsky_prefix}zplc-server.git $@
 ifneq ($(fork_repo_prefix),)
 	-(cd $@; git remote add fork ${fork_repo_prefix}zplc-server.git; git remote update fork)
+endif
+
+${rDir}/labelmuncher:
+	git clone ${origin_repo_bsky_prefix}labelmuncher.git $@
+ifneq ($(fork_repo_prefix),)
+	-(cd $@; git remote add fork ${fork_repo_prefix}labelmuncher.git; git remote update fork)
 endif
 
 ${rDir}/indigo:
