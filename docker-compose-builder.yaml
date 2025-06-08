@@ -28,6 +28,8 @@ volumes:
     name: jetstream
   zplc-data:
     name: zplc-data
+  labelmuncher:
+    name: labelmuncher
 
 networks:
   default:
@@ -408,6 +410,8 @@ services:
     command: deno run --allow-all src/bin.ts
     user: root
     restart: always
+    volumes:
+      - labelmuncher:/app
     depends_on:
       - database
       - pgbouncer
