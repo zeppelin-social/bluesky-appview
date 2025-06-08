@@ -367,7 +367,7 @@ services:
       - BSKY_DATAPLANE_URLS=http://bsky:3001
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
-      - BSKY_DID_PLC_URL=https://${plcFQDN}
+      - BSKY_DID_PLC_URL=https:/plc.directory
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - MOD_SERVICE_DID=${MOD_SERVICE_DID}
     restart: always
