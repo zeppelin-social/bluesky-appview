@@ -396,7 +396,7 @@ services:
       - caddy
 
   labelmuncher:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-labelmuncher:${asof}
+    image: ${BRANDED_NAMESPACE}/bluesky-labelmuncher:${branded_asof}-${DOMAIN}
     build:
       context: ./repos/labelmuncher/
       dockerfile: Dockerfile

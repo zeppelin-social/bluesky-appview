@@ -358,7 +358,8 @@ services:
       - bgs
 
   labelmuncher:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-labelmuncher:${asof}
+    image: ${BRANDED_NAMESPACE}/bluesky-labelmuncher:${branded_asof}-${DOMAIN}
+    pull_policy: never
     environment:
       - BSKY_DATAPLANE_HTTP_VERSION=1.1
       - BSKY_DATAPLANE_URLS=http://bsky:3001
