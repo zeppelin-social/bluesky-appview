@@ -405,13 +405,13 @@ services:
         - https_proxy=${https_proxy}
         - no_proxy=${no_proxy}
         - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS}
-      command: deno run --allow-all src/bin.ts
-      user: root
-      restart: always
-      depends_on:
-        - database
-        - pgbouncer
-        - caddy
+    command: deno run --allow-all src/bin.ts
+    user: root
+    restart: always
+    depends_on:
+      - database
+      - pgbouncer
+      - caddy
 
   social-app:
     #image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
