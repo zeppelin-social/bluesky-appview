@@ -1,30 +1,14 @@
-version: "3.9"
 volumes:
   caddy-data:
     name: caddy-data
-    #   driver: local
-    #   driver_opts:
-    #     o: bind
-    #     device: ${dDir}/caddy
-    #     type: none
   caddy-config:
     name: caddy-config
   database:
     name: database
-  opensearch:
-    name: opensearch
-  bgs:
-    name: bgs
   bsky:
     name: bsky
-  feed-generator:
-    name: feed-generator
-  pds:
-    name: pds
   redis:
     name: redis
-  jetstream:
-    name: jetstream
   zplc-data:
     name: zplc-data
   labelmuncher:
@@ -32,13 +16,12 @@ volumes:
 
 networks:
   default:
-    name: ${docker_network}
+    name: ${DOCKER_NETWORK_NAME:-bluesky-network}
     external: true
 
 services:
   caddy:
-    #   reverse proxy
-    #   cf. https://blog.kurokobo.com/archives/3669#Caddy_acme_server
+    # cf. https://blog.kurokobo.com/archives/3669#Caddy_acme_server
     image: caddy:2
     ports:
       - 80:80
@@ -46,19 +29,10 @@ services:
       - 443:443/udp
       - 9000:9000
     environment:
-      - GOINSECURE=${GOINSECURE}
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - DOMAIN=${DOMAIN}
-      - SOCIAL_DOMAIN=${SOCIAL_DOMAIN}
-      - PDS_DOMAIN=${PDS_DOMAIN}
-      - EMAIL4CERTS=${EMAIL4CERTS}
-      - BSKY_ADMIN_PASSWORDS=${BSKY_ADMIN_PASSWORDS}
+      - DOMAIN=${DOMAIN:?}
+      - EMAIL_FOR_CERTS=${EMAIL_FOR_CERTS:?}
     volumes:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
-      # CA certificates for self-signed. >>>
-      # - ./certs/root.crt:/data/caddy/pki/authorities/local/root.crt:ro
-      # - ./certs/root.key:/data/caddy/pki/authorities/local/root.key:ro
-      # CA certificates for self-signed. <<<
       - caddy-data:/data
       - caddy-config:/config
     healthcheck:
@@ -66,23 +40,30 @@ services:
       test: "wget --no-verbose --tries=1 --spider http://localhost:2019/metrics || exit 1"
       interval: 5s
       retries: 20
-      # to generate HTTPS certifications on-demand >>>>>
-
-  caddy-sidecar:
-    image: httpd:2
-    environment:
-      - GOINSECURE=${GOINSECURE}
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      # volumes:
-      # - ./certs:/etc/ssl/certs:ro
-  # to generate HTTPS certifications on-demand <<<<<
-  # debug for caddy>>>
 
   database:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-postgres:${asof}
+    # this is a custom image that includes the pg_repack extension
+    # you probably won't need it unless you end up in my situation, where I discover after backfilling
+    # that my disk is nearly full, and shutting everything down to vacuum would take longer than relay playback allows
+    image: ${IMAGE_NAMESPACE:?}/postgres
+    build:
+      dockerfile_inline: |
+        FROM postgres:16
+
+        RUN apt-get update --fix-missing && \
+            apt-get install -y postgresql-server-dev-16 wget openssh-server
+
+        RUN apt-get install -y make unzip gcc libssl-dev zlib1g-dev liblz4-dev libreadline-dev libzstd-dev
+        RUN wget -q -O pg_repack.zip "https://api.pgxn.org/dist/pg_repack/1.5.2/pg_repack-1.5.2.zip"
+        RUN unzip pg_repack.zip && rm pg_repack.zip
+        RUN cd pg_repack-* && make && make install
+        RUN rm -rf pg_repack-*
+        RUN apt-get remove --auto-remove -y make unzip gcc libssl-dev zlib1g-dev libreadline-dev libzstd-dev
     pull_policy: never
     shm_size: 16gb
     command:
+      # these settings are based on a 128GB RAM machine with 32 cores, adjust as needed
+      # work_mem, wal_buffers, shared_buffers, max_*_workers should be increased when backfilling
       "-c 'max_connections=1000' -c 'idle_in_transaction_session_timeout=60000' -c 'statement_timeout=300000' -c 'lock_timeout=2000' -c 'search_path=bsky,public,pg_catalog'
       -c 'max_wal_size=24GB' -c 'shared_buffers=12GB' -c 'maintenance_work_mem=256MB' -c 'work_mem=2MB' -c 'wal_buffers=36MB' -c 'effective_cache_size=44GB'
       -c 'max_parallel_workers=16' -c 'max_parallel_workers_per_gather=6' -c 'max_worker_processes=16' -c 'max_parallel_maintenance_workers=6' -c 'autovacuum_max_workers=6'
@@ -91,29 +72,15 @@ services:
       -c 'log_min_duration_statement=400' -c 'log_min_error_statement=warning' -c 'log_temp_files=0' -c 'log_lock_waits=true' -c 'log_error_verbosity=verbose' -c 'log_rotation_size=40MB'
       -c 'shared_preload_libraries=pg_stat_statements' -c 'pg_stat_statements.track=all'"
     environment:
-      - GOINSECURE=${GOINSECURE}
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER:-pg}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?}
       - PGPORT=5432
       - POSTGRES_DB=healthcheck
     volumes:
       - ./config/init-postgres:/docker-entrypoint-initdb.d/
       - database:/var/lib/postgresql/data/
     restart: always
-
-  pgadmin:
-    image: dpage/pgadmin4
-    ports:
-      - 54321:80
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=example@example.com
-      - PGADMIN_DEFAULT_PASSWORD=password
-      #   volumes:
-      #      # - ./certs:/etc/ssl/certs:ro
-    depends_on:
-      - database
 
   pgbouncer:
     image: bitnami/pgbouncer:latest
@@ -122,11 +89,11 @@ services:
     environment:
       - POSTGRESQL_HOST=database
       - POSTGRESQL_PORT=5432
-      - POSTGRESQL_USERNAME=${POSTGRES_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER:-pg}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:?}
       - PGBOUNCER_DATABASE=*
       - PGBOUNCER_AUTH_TYPE=md5
-      - PGBOUNCER_AUTH_USER=${POSTGRES_USER}
+      - PGBOUNCER_AUTH_USER=${POSTGRES_USER:-pg}
       - PGBOUNCER_SET_DATABASE_USER=true
       - PGBOUNCER_SET_DATABASE_PASSWORD=true
       - PGBOUNCER_LISTEN_ADDRESS=0.0.0.0
@@ -148,40 +115,30 @@ services:
       - redis:/data/
     restart: always
 
-  opensearch:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-opensearch:${asof}
-    ports:
-      - 9200:9200
-    environment:
-      - GOINSECURE=${GOINSECURE}
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
-      - bootstrap.memory_lock=true
-      - cluster.name=docker-cluster
-      - discovery.type=single-node
-      - http.host=0.0.0.0
-      - node.name=os-node
-      - plugins.security.disabled=true
-      - transport.host=127.0.0.1
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - opensearch:/usr/share/opensearch/data/
-    restart: always
-
+  # runs https://github.com/char/zplc-server/blob/main/src/ingest.ts
   zplc-ingest:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-zplc:${asof}
+    image: ${IMAGE_NAMESPACE:?}/zplc
+    build:
+      context: ./repos/zplc-server/
+      dockerfile_inline: |
+        FROM denoland/deno:latest
+        WORKDIR /plc
+        COPY --chown=deno:deno . .
     pull_policy: never
     command: deno run -A src/ingest.ts
     volumes:
       - zplc-data:/plc/data
     restart: always
 
+  # runs https://github.com/char/zplc-server/blob/main/src/serve-plc.ts
   zplc-server:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-zplc:${asof}
+    image: ${IMAGE_NAMESPACE:?}/zplc
+    build:
+      context: ./repos/zplc-server/
+      dockerfile_inline: |
+        FROM denoland/deno:latest
+        WORKDIR /plc
+        COPY --chown=deno:deno . .
     pull_policy: never
     command: deno serve -A --parallel --port 2582 src/serve-plc.ts
     ports:
@@ -190,104 +147,18 @@ services:
       - zplc-data:/plc/data
     restart: always
 
-  pds:
-    # image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-pds:${asof}
-    image: ${BRANDED_NAMESPACE}/bluesky-atproto-pds:${branded_asof}-${DOMAIN}
-    ports:
-      - 2583:2583
-    expose:
-      - 2583
-    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
-    user: root
-    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
-    environment:
-      - DEBUG_MODE=1
-      - GOINSECURE=${GOINSECURE}
-      - LOG_DESTINATION=1
-      - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - PDS_ADMIN_PASSWORD=${PDS_ADMIN_PASSWORD}
-      - PDS_BLOBSTORE_DISK_LOCATION=/pds/blobs
-      - PDS_BSKY_APP_VIEW_DID=did:web:${bskyFQDN}
-      - PDS_BSKY_APP_VIEW_URL=https://${bskyFQDN}
-      - PDS_CRAWLERS=https://${bgsFQDN}
-      - PDS_DATA_DIRECTORY=/pds
-      - PDS_DEV_MODE=true
-      #     - PDS_BLOBSTORE_DISK_TMP_LOCATION=/pds/image/tmp
-      - PDS_DID_PLC_URL=https://${plcFQDN}
-      - PDS_EMAIL_FROM_ADDRESS=pds@${DOMAIN}
-      - PDS_EMAIL_SMTP_URL=${PDS_EMAIL_SMTP_URL}
-      - PDS_ENABLE_DID_DOC_WITH_SESSION=true
-      - PDS_HOSTNAME=${pdsFQDN}
-      - PDS_INVITE_INTERVAL=${PDS_INVITE_INTERVAL}
-      - PDS_INVITE_REQUIRED=${PDS_INVITE_REQUIRED}
-      - PDS_JWT_SECRET=${PDS_JWT_SECRET}
-      - PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=${PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX}
-      - PDS_PORT=2583
-      # starts: unset optional env for tesing ozone >>>>>>>
-      #     - PDS_MOD_SERVICE_DID=did:web:${ozoneFQDN}
-      #     - PDS_MOD_SERVICE_URL=https://${ozoneFQDN}
-      #     - PDS_REPORT_SERVICE_DID=did:web:${ozoneFQDN}
-      #     - PDS_REPORT_SERVICE_URL=https://${ozoneFQDN}
-      # ends: unset optional env for tesing ozone <<<<<<<<
-      - PDS_SERVICE_DID=did:web:${pdsFQDN}
-    volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-      - pds:/pds
-    restart: always
-    depends_on:
-      - database
-      - caddy
-
-  bgs:
-    image: ${BRANDED_NAMESPACE}/bluesky-indigo-bgs:${branded_asof}-${DOMAIN}
-    ports:
-      - 2470:2470
-    command: /relay serve
-    environment:
-      - ATP_PLC_HOST=https://${plcFQDN}
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/relay
-      - RELAY_ADMIN_KEY=${BGS_ADMIN_KEY}
-      - RELAY_DEFAULT_REPO_LIMIT=700000
-      - RELAY_MAX_QUEUE_PER_PDS=10000
-      - RELAY_EVENT_PLAYBACK_TTL=48h
-      - RELAY_PERSISTER_DIR=/data/relay/persist
-      - RELAY_TIME_SEQUENCE=true
-      - DEBUG_MODE=1
-      - GOINSECURE=${GOINSECURE}
-      #     - GODEBUG=netdns=go+4
-      - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - LOG_DESTINATION=1
-      - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-    volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-      - bgs:/data/relay
-    restart: always
-    depends_on:
-      - database
-      - pgbouncer
-      - caddy
-
+  # the appview
   bsky:
-    # appview(api)
-    image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky:${branded_asof}-${DOMAIN}
+    image: ${IMAGE_NAMESPACE:?}/bsky
+    build:
+      context: ./repos/atproto/
+      dockerfile: services/bsky/Dockerfile
     ports:
       - 2584:2584
     expose:
       - 2584
     command: node --enable-source-maps api.js
-    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
-    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
     environment:
       - BSKY_ADMIN_PASSWORDS=${BSKY_ADMIN_PASSWORDS}
       - BSKY_BLOB_CACHE_LOC=/cache/
@@ -298,34 +169,27 @@ services:
       - BSKY_DATAPLANE_PORT=3001
       - BSKY_DATAPLANE_URLS=http://bsky:3001
       - BSKY_DB_POSTGRES_SCHEMA=bsky
-      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
+      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER:-pg}:${POSTGRES_PASSWORD:?}@pgbouncer/bsky
       - BSKY_DB_POOL_SIZE=500
-      - BSKY_DID_PLC_URL=https://${plcFQDN}
+      - BSKY_DID_PLC_URL=https://${PLC_FQDN:-plc.${DOMAIN}}
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
-      - BSKY_PUBLIC_URL=https://${bskyFQDN}
-      - BSKY_REPO_PROVIDER=wss://${bgsFQDN}
-      - BSKY_SERVER_DID=did:web:${bskyFQDN}
-      - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY}
-      - BSKY_INDEXED_AT_EPOCH=2025-05-31T00:00:00+00:00
+      - BSKY_PUBLIC_URL=https://${BSKY_FQDN:-bsky.${DOMAIN}}
+      - BSKY_REPO_PROVIDER=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
+      - BSKY_SERVER_DID=did:web:${BSKY_FQDN:-bsky.${DOMAIN}}
+      - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY:?}
+      - BSKY_INDEXED_AT_EPOCH=${BSKY_INDEXED_AT_EPOCH:-2022-11-17T00:35:16.391+00:00}
+      - MOD_SERVICE_DID=${MOD_SERVICE_DID}
       - CLUSTER_WORKER_COUNT=3
       - DEBUG_MODE=1
-      - DID_PLC_URL=https://${plcFQDN}
-      - GOINSECURE=${GOINSECURE}
       - LOG_DESTINATION=1
       - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - MOD_SERVICE_DID=${MOD_SERVICE_DID}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
+      - LOG_LEVEL=${LOG_LEVEL_DEFAULT:-info}
+      - NODE_ENV=${NODE_ENV:-production}
       - NODE_OPTIONS=--max-old-space-size=32768
-      - PORT=2584
       - REDIS_HOST=redis
+      - PORT=2584
     volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
       - bsky:/cache/
-    #     - ./repos/atproto/services/bsky/api.js:/app/services/bsky/api.js:ro
     restart: always
     depends_on:
       - database
@@ -333,41 +197,46 @@ services:
       - redis
       - caddy
 
+  # indexes from relay into appview database
+  # https://github.com/zeppelin-social/bsky-indexer
   bsky-indexer:
     init: true
-    image: ${BRANDED_NAMESPACE}/bluesky-atproto-bsky-indexer:${branded_asof}-${DOMAIN}
+    image: ${IMAGE_NAMESPACE:?}/bsky-indexer
+    build:
+      context: ./repos/bsky-indexer/
     ports:
       - 9229:9229
     command: deno run --allow-all src/bin/bin.ts
-    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. >>>>
     user: root
-    # to fix permision mismatch between volume owner(root) and process user(uid:1000, i.e: node), run as root. <<<<
     environment:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
-      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
+      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER:-pg}:${POSTGRES_PASSWORD:?}@pgbouncer/bsky
       - BSKY_DB_POOL_SIZE=50
-      - BSKY_REPO_PROVIDER=wss://relay1.us-east.bsky.network
-      - DID_PLC_URL=https://${plcFQDN}
+      - BSKY_REPO_PROVIDER=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
+      - DID_PLC_URL=https://${PLC_FQDN:-plc.${DOMAIN}}
       - REDIS_URL=redis://redis:6379
-      - SUB_MIN_WORKERS=16
-      - SUB_MAX_WORKERS=64
+      - SUB_MIN_WORKERS=16 # you can get by with 8 or fewer off-peak, but they're pretty cheap
+      - SUB_MAX_WORKERS=64 # you need at least ~30-40 to keep up with backfill if you miss a few hours
       - STATS_FREQUENCY_MS=60000
     restart: always
     depends_on:
       - database
       - pgbouncer
       - caddy
-      - bgs
 
+  # consumes labels from specified labelers into appview database
+  # https://github.com/zeppelin-social/bsky-indexer
   labelmuncher:
-    image: ${BRANDED_NAMESPACE}/bluesky-labelmuncher:${branded_asof}-${DOMAIN}
+    image: ${IMAGE_NAMESPACE:?}/labelmuncher
+    build:
+      context: ./repos/labelmuncher/
     pull_policy: never
     environment:
       - BSKY_DATAPLANE_HTTP_VERSION=1.1
       - BSKY_DATAPLANE_URLS=http://bsky:3001
       - BSKY_DB_POSTGRES_SCHEMA=bsky
-      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/bsky
-      - BSKY_DID_PLC_URL=https:/plc.directory
+      - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER:-pg}:${POSTGRES_PASSWORD:?}@pgbouncer/bsky
+      - BSKY_DID_PLC_URL=https:/plc.directory # if you're reading this, you can probably change to ${PLC_FQDN}, my setup is just messed up
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - MOD_SERVICE_DID=${MOD_SERVICE_DID}
     restart: always
@@ -378,27 +247,21 @@ services:
       - pgbouncer
       - caddy
 
+  # (optional) social-app instance to go with your appview
   social-app:
-    # image: ${UNBRANDED_NAMESPACE}/bluesky-social-app:${asof}
-    image: ${BRANDED_NAMESPACE}/bluesky-social-app:${branded_asof}-${DOMAIN}
+    image: ${IMAGE_NAMESPACE:?}/social-app
+    build:
+      context: ./repos/social-app/
     ports:
       - 8100:8100
     command:
       /usr/bin/bskyweb serve
-      # volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-    # supporting self-signed certificates, easiest way <<<<
     environment:
-      # cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 >>>>
-      - ATP_APPVIEW_HOST=https://${publicApiFQDN}
-      # cf. https://github.com/bluesky-social/social-app/blob/main/bskyweb/example.env and https://github.com/bluesky-social/bsky-docs/issues/63 <<<<
-      - GOINSECURE=${GOINSECURE}
-      - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT}
+      - ATP_APPVIEW_HOST=https://${BSKY_FQDN:-bsky.${DOMAIN}}
+      - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT:-info}
+      - LOG_LEVEL=${LOG_LEVEL_DEFAULT:-info}
       - HTTP_ADDRESS=:8100
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
+      - NODE_ENV=${NODE_ENV:-production}
     healthcheck:
       test:
         [
@@ -409,215 +272,3 @@ services:
       interval: 10s
       retries: 5
     restart: always
-
-  palomar:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-indigo-palomar:${asof}
-    ports:
-      - 3999:3999
-      # volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-    environment:
-      # refer https://github.com/bluesky-social/indigo/tree/main/cmd/palomar
-
-      - ATP_BGS_HOST=wss://${bgsFQDN}
-      - ATP_PLC_HOST=https://${plcFQDN}
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/palomar
-      #     - ES_CERT_FILE=
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
-      - ES_HOSTS=http://admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}@opensearch:9200
-      - ES_INSECURE_SSL=true
-      - ES_PASSWORD=
-      - ES_USERNAME=
-      - GOINSECURE=${GOINSECURE}
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - PALOMAR_BIND=0.0.0.0:3999
-    restart: always
-    depends_on:
-      - opensearch
-      - database
-      - pgbouncer
-      - caddy
-
-  jetstream:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-jetstream:${asof}
-    ports:
-      - 6008:6008
-      - 6009:6009
-    volumes:
-      - jetstream:/data
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-    environment:
-      - JETSTREAM_WS_URL=wss://${bgsFQDN}/xrpc/com.atproto.sync.subscribeRepos
-      - JETSTREAM_DATA_DIR=/data
-      - JETSTREAM_LISTEN_ADDR=:6008
-      - JETSTREAM_METRICS_LISTEN_ADDR=:6009
-      - JETSTREAM_LIVENESS_TTL=96h
-    restart: always
-    depends_on:
-      - caddy
-
-  ozone-standalone:
-    # moderation-api:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-ozone:${asof}
-    ports:
-      - 3000:3000
-      # volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-    #     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
-    environment:
-      #     https://github.com/bluesky-social/ozone/blob/main/HOSTING.md
-      - LOG_ENABLED=1
-      - DEBUG_MODE=1
-      - LOG_DESTINATION=1
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=production
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - GOINSECURE=${GOINSECURE}
-      - OZONE_DEV_MODE=true
-      - OZONE_PORT=3000
-      - OZONE_SERVER_DID=${OZONE_SERVER_DID}
-      - OZONE_PUBLIC_URL=https://${ozoneFQDN}
-      - OZONE_ADMIN_HANDLE=${OZONE_ADMIN_HANDLE}
-      - OZONE_ADMIN_DIDS=${OZONE_ADMIN_DIDS}
-      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
-      - OZONE_SIGNING_KEY_HEX=${OZONE_SIGNING_KEY_HEX}
-      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/ozone
-      - OZONE_DB_POSTGRES_SCHEMA=ozone
-      - OZONE_DB_MIGRATE=1
-      - OZONE_DID_PLC_URL=https://${plcFQDN}
-      - NEXT_PUBLIC_PLC_DIRECTORY_URL=https://${plcFQDN}
-      - NEXT_PUBLIC_OZONE_SERVICE_DID=${OZONE_SERVER_DID}
-      - NEXT_PUBLIC_OZONE_PUBLIC_URL=https://${ozoneFQDN}
-      - NEXT_PUBLIC_SOCIAL_APP_DOMAIN=${socialappFQDN}
-      - NEXT_PUBLIC_SOCIAL_APP_URL=https://${socialappFQDN}
-      - NEXT_PUBLIC_HANDLE_RESOLVER_URL=https://${publicApiFQDN}
-      - OZONE_APPVIEW_DID=did:web:${bskyFQDN}
-      - OZONE_APPVIEW_URL=https://${bskyFQDN}
-      - OZONE_APPVIEW_PUSH_EVENTS=true
-      - OZONE_PDS_DID=did:web:${pdsFQDN}
-      - OZONE_PDS_URL=https://${pdsFQDN}
-    restart: always
-    depends_on:
-      - database
-      - pgbouncer
-      - caddy
-
-  ozone:
-    # moderation-api:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-ozone:${asof}
-    command: node --enable-source-maps api.js
-    ports:
-      - 3000:3000
-      # volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-    #     - ./repos/atproto/services/ozone/api.js:/app/services/ozone/api.js:ro
-    environment:
-      - DEBUG_MODE=1
-      - ENABLE_MIGRATIONS=true
-      - GOINSECURE=${GOINSECURE}
-      - LOG_DESTINATION=1
-      - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - OZONE_ADMIN_DIDS=
-      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
-      - OZONE_APPVIEW_DID=did:web:${bskyFQDN}
-      - OZONE_APPVIEW_PUSH_EVENTS=true
-      - OZONE_APPVIEW_URL=https://${bskyFQDN}
-      - OZONE_DB_POSTGRES_SCHEMA=ozone
-      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/ozone
-      - OZONE_DEV_MODE=true
-      - OZONE_DID_PLC_URL=https://${plcFQDN}
-      - OZONE_MODERATOR_DIDS=did:web:${bskyFQDN}
-      - OZONE_PDS_DID=did:web:${pdsFQDN}
-      - OZONE_PDS_URL=https://${pdsFQDN}
-      - OZONE_PORT=3000
-      - OZONE_PUBLIC_URL=https://${ozoneFQDN}
-      - OZONE_SERVER_DID=did:web:${ozoneFQDN}
-      - OZONE_SIGNING_KEY_HEX=${OZONE_SIGNING_KEY_HEX}
-      - OZONE_TRIAGE_DIDS=
-    restart: always
-    depends_on:
-      - database
-      - pgbouncer
-      - caddy
-
-  ozone-daemon:
-    image: ${UNBRANDED_NAMESPACE}/bluesky-atproto-ozone:${asof}
-    command:
-      node --enable-source-maps daemon.js
-      # volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-    # supporting self-signed certificates, easiest way <<<<
-    environment:
-      - DEBUG_MODE=1
-      - ENABLE_MIGRATIONS=true
-      - GOINSECURE=${GOINSECURE}
-      - LOG_DESTINATION=1
-      - LOG_ENABLED=true
-      - LOG_LEVEL=${LOG_LEVEL_DEFAULT}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-      - OZONE_ADMIN_DIDS=
-      - OZONE_ADMIN_PASSWORD=${OZONE_ADMIN_PASSWORD}
-      - OZONE_APPVIEW_DID=did:web:${bskyFQDN}
-      - OZONE_APPVIEW_PUSH_EVENTS=true
-      - OZONE_APPVIEW_URL=https://${bskyFQDN}
-      - OZONE_DB_POSTGRES_SCHEMA=ozone
-      - OZONE_DB_POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer/ozone
-      - OZONE_DEV_MODE=true
-      - OZONE_DID_PLC_URL=https://${plcFQDN}
-      - OZONE_MODERATOR_DIDS=did:web:${bskyFQDN}
-      - OZONE_PDS_DID=did:web:${pdsFQDN}
-      - OZONE_PDS_URL=https://${pdsFQDN}
-      - OZONE_PORT=3000
-      - OZONE_PUBLIC_URL=https://${ozoneFQDN}
-      - OZONE_SERVER_DID=did:web:${ozoneFQDN}
-      - OZONE_SIGNING_KEY_HEX=${OZONE_SIGNING_KEY_HEX}
-      - OZONE_TRIAGE_DIDS=
-    restart: always
-    depends_on:
-      - ozone
-      - database
-      - pgbouncer
-      - caddy
-
-  feed-generator:
-    #image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:${asof}
-    image: ${UNBRANDED_NAMESPACE}/bluesky-feed-generator:latest
-    ports:
-      - 2586:3000
-    environment:
-      - FEEDGEN_HOSTNAME=${feedgenFQDN}
-      - FEEDGEN_LISTENHOST=0.0.0.0
-      - FEEDGEN_PORT=3000
-      - FEEDGEN_PUBLISHER_DID=${FEEDGEN_PUBLISHER_DID}
-      - FEEDGEN_SERVICE_DID=did:web:${feedgenFQDN}
-      - FEEDGEN_SQLITE_LOCATION=/data/db.sqlite
-      - FEEDGEN_PLC_URL=https://${plcFQDN}
-      - FEEDGEN_SUBSCRIPTION_ENDPOINT=wss://${bgsFQDN}
-      - FEEDGEN_SUBSCRIPTION_RECONNECT_DELAY=3000
-      - GOINSECURE=${GOINSECURE}
-      - NODE_ENV=development
-      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED}
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:3000/xrpc/_health"]
-      timeout: 10s
-      interval: 10s
-      retries: 5
-    volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      # - ./certs:/etc/ssl/certs:ro
-      # supporting self-signed certificates, easiest way <<<<
-      - feed-generator:/data/

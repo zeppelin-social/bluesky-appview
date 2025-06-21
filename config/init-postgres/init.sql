@@ -1,25 +1,2 @@
--- admin user=pg
-
--- PLC
--- CREATE DATABASE plc;
--- GRANT ALL PRIVILEGES ON DATABASE plc TO pg;
-
--- BGS
-CREATE DATABASE relay;
-GRANT ALL PRIVILEGES ON DATABASE relay TO pg;
-
--- bsky(AppView)
 CREATE DATABASE bsky;
 GRANT ALL PRIVILEGES ON DATABASE bsky TO pg;
-
--- palomar(search)
-CREATE DATABASE palomar;
-GRANT ALL PRIVILEGES ON DATABASE palomar TO pg;
-
--- pds
---CREATE DATABASE pds;
---GRANT ALL PRIVILEGES ON DATABASE pds TO pg;
-
--- ozone(Moderation)
-CREATE DATABASE ozone;
-GRANT ALL PRIVILEGES ON DATABASE ozone TO pg;
