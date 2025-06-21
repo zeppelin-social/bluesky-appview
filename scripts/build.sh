@@ -12,7 +12,7 @@ clone_or_pull() {
     fi
 }
 
-IFS=" " read -r -a services <<< "$(yq '.services | keys | join(" ")' docker-compose.yaml)"
+IFS=" " read -r -a services <<< "$(yq '.services | keys | join(" ")' docker-compose.yaml | sed 's/"//g')"
 
 args=("$@")
 to_build=()
@@ -30,10 +30,10 @@ else
 fi
 
 for service in "${to_build[@]}"; do
-    if [[ $(yq '.services."'$service'".build.context' docker-compose.yaml) != null ]]; then
-        repo_name=$(yq '.services."'$service'".build.context' docker-compose.yaml | sed 's/.*\/\(.*\)\/.*/\1/')
+    if [[ $(yq '.services."'"$service"'".build.context' docker-compose.yaml) != null ]]; then
+        repo_name=$(yq '.services."'"$service"'".build.context' docker-compose.yaml | sed 's/.*\/\(.*\)\/.*/\1/')
         clone_or_pull "$repo_name"
     fi
 done
 
-COMPOSE_BAKE=true docker-compose build "${to_build[@]}"
+COMPOSE_BAKE=true docker compose build "${to_build[@]}"
