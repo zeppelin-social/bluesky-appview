@@ -1,51 +1,51 @@
 {
-        email ${EMAIL_FOR_CERTS}
-        servers  {
-          protocols  h1
-        }
+	email $EMAIL_FOR_CERTS
+	servers {
+		protocols h1
+	}
 }
 
 # https://caddy.community/t/how-can-i-allow-multiple-domain-origins-in-cors/22129/5
 (cors) {
-    @cors_preflight {
-        method OPTIONS
-    }
-    @corsOrigin {
-        header_regexp Origin ^https?://*.({$DOMAIN})$
-    }
+	@cors_preflight {
+		method OPTIONS
+	}
+	@corsOrigin {
+		header_regexp Origin ^https?://*.({$DOMAIN})$
+	}
 
-    handle @cors_preflight {
-        header {
-            Access-Control-Allow-Origin "*"
-            Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
-            Access-Control-Allow-Headers *
-            Vary Origin
-            defer
-        }
-        respond "" 204
-    }
+	handle @cors_preflight {
+		header {
+			Access-Control-Allow-Origin "*"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers *
+			Vary Origin
+			defer
+		}
+		respond "" 204
+	}
 
-    handle @corsOrigin {
-        header {
-            Access-Control-Allow-Origin "*"
-            Access-Control-Expose-Headers *
-            Vary Origin
-            defer
-        }
-    }
+	handle @corsOrigin {
+		header {
+			Access-Control-Allow-Origin "*"
+			Access-Control-Expose-Headers *
+			Vary Origin
+			defer
+		}
+	}
 }
 
 {$DOMAIN} {
-    import cors
-    reverse_proxy http://social-app:8100
+	import cors
+	reverse_proxy http://social-app:8100
 }
 
 plc.{$DOMAIN} {
-    import cors
+	import cors
 	reverse_proxy http://zplc-server:2582
 }
 
 api.{$DOMAIN}, bsky.{$DOMAIN}, public.api.{$DOMAIN} {
-    import cors
+	import cors
 	reverse_proxy http://bsky:2584
 }
