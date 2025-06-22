@@ -1,11 +1,7 @@
 **~
 repos/**
-data/**
-certs/**
-config/**secret**
-**/__pycache__
-**/node_modules/**
-**/package-lock.json
 *.env
 .idea/
+.vscode/
+.zed/
 .DS_Store
