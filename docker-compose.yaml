@@ -178,6 +178,8 @@ services:
       - BSKY_SERVER_DID=did:web:${BSKY_FQDN:-bsky.${DOMAIN}}
       - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY:?}
       - BSKY_INDEXED_AT_EPOCH=${BSKY_INDEXED_AT_EPOCH:-2022-11-17T00:35:16.391+00:00}
+      - BSKY_VIDEO_PLAYLIST_URL_PATTERN=https://video.bsky.app/watch/%s/%s/playlist.m3u8
+      - BSKY_VIDEO_THUMBNAIL_URL_PATTERN=https://video.bsky.app/watch/%s/%s/thumbnail.jpg
       - MOD_SERVICE_DID=${MOD_SERVICE_DID}
       - CLUSTER_WORKER_COUNT=3
       - DEBUG_MODE=1
