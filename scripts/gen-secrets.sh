@@ -4,9 +4,12 @@ GENERATE_PASS="openssl ecparam --name secp256k1 --genkey --noout --outform DER |
 
 password_names=(
     POSTGRES_PASSWORD
+    PDS_ADMIN_KEY
+    PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX
+    PDS_JWT_SECRET
+    RELAY_ADMIN_KEY
     BSKY_ADMIN_PASSWORDS
     BSKY_SERVICE_SIGNING_KEY
-    RELAY_ADMIN_KEY
 )
 
 for name in "${password_names[@]}"; do

@@ -5,6 +5,8 @@ volumes:
     name: caddy-config
   database:
     name: database
+  pds:
+    name: pds
   relay:
     name: relay
   bsky:
@@ -149,7 +151,39 @@ services:
       - zplc-data:/plc/data
     restart: always
 
-  # relay
+  pds:
+    image: ${IMAGE_NAMESPACE:?}/pds
+    build:
+      context: ./repos/atproto/
+      dockerfile: services/pds/Dockerfile
+    ports:
+      - 2583:2583
+    environment:
+      - LOG_DESTINATION=1
+      - LOG_ENABLED=true
+      - LOG_LEVEL=${LOG_LEVEL_DEFAULT:-info}
+      - PDS_ADMIN_PASSWORD=${PDS_ADMIN_PASSWORD:?}
+      - PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=${PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX:?}
+      - PDS_JWT_SECRET=${PDS_JWT_SECRET:?}
+      - PDS_BLOBSTORE_DISK_LOCATION=/pds/blobs
+      - PDS_BSKY_APP_VIEW_DID=did:web:${BSKY_FQDN:-bsky.${DOMAIN}}
+      - PDS_BSKY_APP_VIEW_URL=https://${BSKY_FQDN:-bsky.${DOMAIN}}
+      - PDS_CRAWLERS=https://${RELAY_FQDN:-relay.${DOMAIN},https://bsky.network
+      - PDS_DID_PLC_URL=https://${PLC_FQDN:-plc.${DOMAIN}}
+      - PDS_EMAIL_FROM_ADDRESS=pds@${DOMAIN}
+      - PDS_EMAIL_SMTP_URL=${PDS_EMAIL_SMTP_URL}
+      - PDS_INVITE_REQUIRED=${PDS_INVITE_REQUIRED:-true}
+      - PDS_ENABLE_DID_DOC_WITH_SESSION=true
+      - PDS_DATA_DIRECTORY=/pds
+      - PDS_PORT=2583
+      - PDS_SERVICE_DID=did:web:${PDS_FQDN:-pds.${DOMAIN}}
+    volumes:
+      - pds:/pds
+    restart: always
+    depends_on:
+      - caddy
+      - zplc-server
+
   relay:
     image: ${IMAGE_NAMESPACE:?}/relay
     ports:
@@ -226,6 +260,7 @@ services:
       - pgbouncer
       - redis
       - caddy
+      - zplc-server
 
   # indexes from relay into appview database
   # https://github.com/zeppelin-social/bsky-indexer
@@ -242,7 +277,7 @@ services:
       - BSKY_DB_POSTGRES_SCHEMA=bsky
       - BSKY_DB_POSTGRES_URL=postgres://${POSTGRES_USER:-pg}:${POSTGRES_PASSWORD:?}@pgbouncer/bsky
       - BSKY_DB_POOL_SIZE=50
-      - BSKY_REPO_PROVIDER=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
+      - BSKY_REPO_PROVIDER=wss://${RELAY_FQDN:-relay.${DOMAIN}}
       - DID_PLC_URL=https://${PLC_FQDN:-plc.${DOMAIN}}
       - REDIS_URL=redis://redis:6379
       - SUB_MIN_WORKERS=16 # you can get by with 8 or fewer off-peak, but they're pretty cheap
