@@ -45,6 +45,11 @@ plc.{$DOMAIN} {
 	reverse_proxy http://zplc-server:2582
 }
 
+relay.{$DOMAIN} {
+	import cors
+	reverse_proxy http://relay:2470
+}
+
 api.{$DOMAIN}, bsky.{$DOMAIN}, public.api.{$DOMAIN} {
 	import cors
 	reverse_proxy http://bsky:2584

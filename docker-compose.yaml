@@ -5,6 +5,8 @@ volumes:
     name: caddy-config
   database:
     name: database
+  relay:
+    name: relay
   bsky:
     name: bsky
   redis:
@@ -147,6 +149,32 @@ services:
       - zplc-data:/plc/data
     restart: always
 
+  # relay
+  relay:
+    image: ${IMAGE_NAMESPACE:?}/relay
+    ports:
+      - 2470:2470
+    build:
+      context: ./repos/indigo/
+      dockerfile: cmd/relay/Dockerfile
+    command: /relay
+    environment:
+      - RELAY_ADMIN_KEY=${RELAY_ADMIN_KEY:?}
+      - RELAY_PLC_HOST=https://${PLC_FQDN:-plc.${DOMAIN}}
+      - RELAY_DEFAULT_REPO_LIMIT=700_000
+      - RELAY_EVENT_PLAYBACK_TTL=48h
+      - RELAY_NEW_HOSTS_PER_DAY_LIMIT=9999
+      - RELAY_DEFAULT_ACCOUNT_LIMIT=100 # max accounts per new PDS
+      - DATABASE_URL=postgres://${POSTGRES_USER:-pg}:${POSTGRES_PASSWORD:?}@pgbouncer/relay
+    volumes:
+      - relay:/data
+    restart: always
+    depends_on:
+      - database
+      - pgbouncer
+      - caddy
+      - zplc-server
+
   # the appview
   bsky:
     image: ${IMAGE_NAMESPACE:?}/bsky
@@ -174,7 +202,7 @@ services:
       - BSKY_DID_PLC_URL=https://${PLC_FQDN:-plc.${DOMAIN}}
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - BSKY_PUBLIC_URL=https://${BSKY_FQDN:-bsky.${DOMAIN}}
-      - BSKY_REPO_PROVIDER=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
+      - BSKY_REPO_PROVIDER=wss://${RELAY_FQDN:-relay.${DOMAIN}}
       - BSKY_SERVER_DID=did:web:${BSKY_FQDN:-bsky.${DOMAIN}}
       - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY:?}
       - BSKY_INDEXED_AT_EPOCH=${BSKY_INDEXED_AT_EPOCH:-2022-11-17T00:35:16.391+00:00}
@@ -256,8 +284,7 @@ services:
       context: ./repos/social-app/
     ports:
       - 8100:8100
-    command:
-      /usr/bin/bskyweb serve
+    command: /usr/bin/bskyweb serve
     environment:
       - ATP_APPVIEW_HOST=https://${BSKY_FQDN:-bsky.${DOMAIN}}
       - GOLOG_LOG_LEVEL=${LOG_LEVEL_DEFAULT:-info}
