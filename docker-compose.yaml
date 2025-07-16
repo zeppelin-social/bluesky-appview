@@ -286,8 +286,8 @@ services:
       dockerfile: cmd/palomar/Dockerfile.opensearch
     pull_policy: never
     ports:
-      - "9200:9200"
-      - "9600:9600"
+      - 9200:9200
+      - 9600:9600
     environment:
       - discovery.type=single-node
       - transport.host=127.0.0.1
