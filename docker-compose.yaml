@@ -177,6 +177,7 @@ services:
       - BSKY_LABELS_FROM_ISSUER_DIDS=${BSKY_LABELS_FROM_ISSUER_DIDS}
       - BSKY_PUBLIC_URL=https://${BSKY_FQDN:-bsky.${DOMAIN}}
       - BSKY_REPO_PROVIDER=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
+      - BSKY_SEARCH_ENDPOINT=https://${SEARCH_FQDN:-search.${DOMAIN}} # leave empty to use the appview's own search endpoint
       - BSKY_SERVER_DID=did:web:${BSKY_FQDN:-bsky.${DOMAIN}}
       - BSKY_SERVICE_SIGNING_KEY=${BSKY_SERVICE_SIGNING_KEY:?}
       - BSKY_INDEXED_AT_EPOCH=${BSKY_INDEXED_AT_EPOCH:-2022-11-17T00:35:16.391+00:00}
@@ -317,10 +318,6 @@ services:
     pull_policy: never
     ports:
       - 3999:3999
-    volumes:
-      # supporting self-signed certificates, easiest way >>>>
-      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-      # supporting self-signed certificates, easiest way <<<<
     environment:
       - ATP_BGS_HOST=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
       - ATP_PLC_HOST=https://${PLC_FQDN:-plc.${DOMAIN}}
