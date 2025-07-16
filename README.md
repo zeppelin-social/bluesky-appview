@@ -4,7 +4,7 @@ This repo includes everything you need to run the Bluesky appview. It also serve
 
 **You'll need:**
 - A domain
-	- With the default settings, you'll want A records for `your.domain`, `bsky.your.domain`, and `plc.your.domain`, as well as, optionally, `api.your.domain` and `public.api.your.domain`.
+	- With the default settings, you'll want A records for `your.domain`, `bsky.your.domain`, `plc.your.domain`, and `search.your.domain`, as well as, optionally, `api.your.domain` and `public.api.your.domain`.
 - Docker, [`yq`](https://github.com/mikefarah/yq/#install)
 
 ## Setup
@@ -31,7 +31,9 @@ You'll be running the following services:
 | redis                                                                         | Redis, used by the appview and bsky-indexer                                                                                                                              |
 | pgbouncer                                                                     | A connection pool for the database                                                                                                                                       |
 | caddy                                                                         | Reverse proxy                                                                                                                                                            |
-| social-app                                                                    | An instance of the Bluesky web app                                                                                                                                       |
+| social-app                                                                    | An instance of the Bluesky web app
+| opensearch                                                                    | An OpenSearch instance for search functionality
+| palomar                                                                       | Bluesky's backend for OpenSearch, handling indexing and querying
 
 ---
 

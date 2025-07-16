@@ -49,3 +49,8 @@ api.{$DOMAIN}, bsky.{$DOMAIN}, public.api.{$DOMAIN} {
 	import cors
 	reverse_proxy http://bsky:2584
 }
+
+search.{$DOMAIN} {
+    import cors
+    reverse_proxy http://palomar:3999
+}

@@ -13,6 +13,8 @@ volumes:
     name: zplc-data
   labelmuncher:
     name: labelmuncher
+  opensearch:
+    name: opensearch
 
 networks:
   default:
@@ -274,3 +276,62 @@ services:
       interval: 10s
       retries: 5
     restart: always
+
+  # (optional) search backend
+  opensearch:
+    image: ${IMAGE_NAMESPACE:?}/opensearch
+    build:
+      context: ./repos/indigo/
+      dockerfile: cmd/palomar/Dockerfile.opensearch
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    environment:
+      - discovery.type=single-node
+      - transport.host=127.0.0.1
+      - http.host=0.0.0.0
+      - cluster.name=opensearch-palomar
+      - node.name=os-node
+      - plugins.security.disabled=true
+      - bootstrap.memory_lock=true # disable JVM heap memory swapping
+      - OPENSEARCH_JAVA_OPTS=-Xms8192m -Xmx32768m # set min and max JVM heap sizes to at least 50% of system RAM, up to 32 GB
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD:?}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch:/usr/share/opensearch/data/
+    restart: always
+
+  # (optional) search indexer & API
+  palomar:
+    image: ${IMAGE_NAMESPACE:?}/palomar
+    ports:
+      - 3999:3999
+    volumes:
+      # supporting self-signed certificates, easiest way >>>>
+      - ./certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+      # supporting self-signed certificates, easiest way <<<<
+    environment:
+      - ATP_BGS_HOST=wss://${BGS_FQDN:-relay1.us-east.bsky.network}
+      - ATP_PLC_HOST=https://${PLC_FQDN:-plc.${DOMAIN}}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-pg}:${POSTGRES_PASSWORD:?}@pgbouncer/palomar
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD:?}
+      - ES_HOSTS=http://admin:${OPENSEARCH_PASSWORD:?}@opensearch:9200
+      - ES_INSECURE_SSL=true
+      - ES_PASSWORD=${OPENSEARCH_PASSWORD:?}
+      - ES_USERNAME=admin
+      - PALOMAR_BIND=0.0.0.0:3999
+      - PALOMAR_RELAY_SYNC_RATE_LIMIT=10
+      - PALOMAR_INDEX_MAX_CONCURRENCY=25
+      - PALOMAR_INDEXING_RATE_LIMIT=99999
+      - PALOMAR_DISCOVER_REPOS=true
+    restart: always
+    depends_on:
+      - opensearch
+      - pgbouncer
+      - caddy

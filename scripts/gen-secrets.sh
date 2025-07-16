@@ -6,6 +6,7 @@ password_names=(
     POSTGRES_PASSWORD
     BSKY_ADMIN_PASSWORDS
     BSKY_SERVICE_SIGNING_KEY
+    OPENSEARCH_PASSWORD
 )
 
 for name in "${password_names[@]}"; do
