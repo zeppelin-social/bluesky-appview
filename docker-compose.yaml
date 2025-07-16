@@ -283,6 +283,7 @@ services:
     build:
       context: ./repos/indigo/
       dockerfile: cmd/palomar/Dockerfile.opensearch
+    pull_policy: never
     ports:
       - "9200:9200"
       - "9600:9600"
@@ -310,6 +311,10 @@ services:
   # (optional) search indexer & API
   palomar:
     image: ${IMAGE_NAMESPACE:?}/palomar
+    build:
+      context: ./repos/indigo/
+      dockerfile: cmd/palomar/Dockerfile
+    pull_policy: never
     ports:
       - 3999:3999
     volumes:
