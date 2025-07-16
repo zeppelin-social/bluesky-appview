@@ -1,5 +1,5 @@
 {
-	email $EMAIL_FOR_CERTS
+	email {$EMAIL_FOR_CERTS}
 	servers {
 		protocols h1
 	}
@@ -51,6 +51,6 @@ api.{$DOMAIN}, bsky.{$DOMAIN}, public.api.{$DOMAIN} {
 }
 
 search.{$DOMAIN} {
-    import cors
-    reverse_proxy http://palomar:3999
+	import cors
+	reverse_proxy http://palomar:3999
 }
